@@ -1,49 +1,46 @@
 package ru.yandex.task;
-import java.util.ArrayList;
+import java.util.HashMap;
 
 public class TaskManager {
-    private final ArrayList<Task> taskList;
-    private int taskIdCounter;
+    private final HashMap<Integer, Task> taskList;
 
     public TaskManager() {
-        this.taskIdCounter = 0;
-        this.taskList = new ArrayList<>();
+        this.taskList = new HashMap<>();
     }
 
     public void addTask (Task task) {
-        taskList.add(task);
+        taskList.put(task.getId(), task);
     }
 
     public void addTask (String name, String description) {
-        while (getTaskByID(taskIdCounter) != null) {
-            taskIdCounter++;
-        }
-        taskList.add(new Task(taskIdCounter, name, description));
+        int newID = CounterID.getNextID();
+        taskList.put(newID, new Task(newID, name, description));
     }
 
-    public void addTask (String name, String description, Task task) {
-        while (getTaskByID(taskIdCounter) != null) {
-            taskIdCounter++;
-        }
-        taskList.add(new Task(taskIdCounter, name, description, task));
+    public void addEpicTask (String name, String description) {
+        int newID = CounterID.getNextID();
+        taskList.put(newID, new EpicTask(newID, name, description));
     }
 
-    public void addTask (String name, String description, int parentID) {
-        while (getTaskByID(taskIdCounter) != null) {
-            taskIdCounter++;
+    public void addSubTask (String name, String description, Task epicTask) {
+        if (epicTask == null) {
+            return;
         }
-        taskList.add(new Task(taskIdCounter, name, description, getTaskByID(parentID)));
+        if (epicTask.getClass() != EpicTask.class) {
+            System.out.println("Подзадачу можно добавить только для эпической задачи.");
+            return;
+        }
+        ((EpicTask) epicTask).addSubTask(new SubTask(CounterID.getNextID(), name, description, (EpicTask) epicTask));
     }
 
     public void updateTask (Task task) {
         if (task == null) {
             return;
         }
-        taskList.remove(getTaskByID(task.getId()));
-        taskList.add(task);
-        if (task.getParent() == null) {
-            setStatusParent(task);
+        if (taskList.containsKey(task.getId())) {
+            taskList.remove(taskList.get(task.getId()));
         }
+        taskList.put(task.getId(), task);
     }
 
     public void clearAllTask () {
@@ -51,102 +48,24 @@ public class TaskManager {
     }
 
     public void removeByID (int id) {
-        Task currentTask = getTaskByID(id);
-        if (currentTask == null) {
-            return;
-        }
-        taskList.remove(currentTask);
+        taskList.remove(id);
     }
 
     public void setTaskStatusByID (int id, TaskStatus status) {
-        Task currentTask = getTaskByID(id);
-        if (currentTask == null) {
-            return;
-        }
-        if (currentTask.getParent() == null) {
-            setStatusChild(currentTask, status);
-            currentTask.setStatus(status);
-        } else {
-            currentTask.setStatus(status);
-            setStatusParent(currentTask);
-        }
-    }
-
-    public void printAllTasks () {
-        for (Task task : taskList) {
-            System.out.println(task);
-        }
-    }
-
-    public ArrayList<Task> getAllChild(Task parent) {
-        ArrayList<Task> result = new ArrayList<>();
-        for (Task task : taskList) {
-            if (task.getParent().equals(parent)) {
-                result.add(task);
-            }
-        }
-        return result;
-    }
-
-    public ArrayList<Task> getAllParent () {
-        ArrayList<Task> result = new ArrayList<>();
-        for (Task task : taskList) {
-            if (task.getParent() == null) {
-                result.add(task);
-            }
-        }
-        return result;
-    }
-
-    public ArrayList<Task> getAllTask () {
-        return taskList;
+        taskList.get(id).setStatus(status);
     }
 
     public Task getTaskByID (int id) {
-        for (Task task : taskList) {
-            if (task.getId() == id) {
-                return task;
-            }
-        }
-        System.out.println("Не найдена задача с ID = " + id + ".");
-        return null;
+        return taskList.get(id);
     }
 
-    //устанавливает статус всем дочерним задачам
-    private void setStatusChild (Task task, TaskStatus status) {
-        ArrayList<Task> taskChildList = getAllChild(task);
-        if (taskChildList.isEmpty()) {
-            return;
-        }
-        for (Task child : taskChildList) {
-            child.setStatus(status);
-        }
-    }
-
-    //проверяет статусы дочерних задач и устанавливает статус родителя
-    private void setStatusParent (Task parent) {
-        ArrayList<Task> taskChildList = getAllChild(parent);
-        if (taskChildList.isEmpty()) {
-            return;
-        }
-        boolean isDone = false;
-        boolean isNew = false;
-        boolean isInProgress = false;
-        for (Task child : taskChildList) {
-            switch (child.getStatus()) {
-                case NEW -> isNew = true;
-                case DONE -> isDone = true;
-                case IN_PROGRESS -> isInProgress = true;
-                default -> {
-                    return;
+    public void printAllTasks () {
+        for (Task task : taskList.values()) {
+            System.out.println(task);
+            if (task.getClass() == (EpicTask.class)) {
+                for (SubTask subTask : ((EpicTask) task).getSubTaskList()) {
+                    System.out.println(" -> " + subTask);
                 }
-            }
-            if (isDone && !isNew && !isInProgress) {
-                parent.setStatus(TaskStatus.DONE);
-            } else if (isNew && !isDone && !isInProgress) {
-                parent.setStatus(TaskStatus.NEW);
-            } else {
-                parent.setStatus(TaskStatus.IN_PROGRESS);
             }
         }
     }
