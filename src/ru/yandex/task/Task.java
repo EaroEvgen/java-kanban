@@ -1,13 +1,13 @@
 package ru.yandex.task;
 
 public class Task {
-    private final int id;
+    private int id;
     private String name;
     private String description;
     private TaskStatus status;
 
-    public Task(int id, String name, String description) {
-        this.id = id;
+    public Task(String name, String description) {
+        this.id = CounterID.getNextID();
         this.name = name;
         this.description = description;
         this.status = TaskStatus.NEW;
@@ -62,5 +62,9 @@ public class Task {
     public String toString() {
         return this.getClass() + "@" + id + "[name = " + name + ", description = " + description +
                 ", status" + status + "]";
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 }

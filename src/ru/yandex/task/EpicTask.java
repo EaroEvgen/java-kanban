@@ -4,8 +4,8 @@ import java.util.ArrayList;
 public class EpicTask extends Task {
     private final ArrayList<SubTask> subTasks;
 
-    EpicTask (int id, String name, String description) {
-        super(id, name, description);
+    public EpicTask (String name, String description) {
+        super(name, description);
         subTasks = new ArrayList<>();
     }
 
@@ -22,6 +22,7 @@ public class EpicTask extends Task {
         if (!subTasks.contains(subTask)) {
             subTasks.add(subTask);
         }
+        updateStatus();
     }
 
     public void removeSubTask (SubTask subTask) {
@@ -30,6 +31,7 @@ public class EpicTask extends Task {
             return;
         }
         subTasks.remove(subTask);
+        updateStatus();
     }
 
     public void clearSubTask () {
@@ -41,6 +43,10 @@ public class EpicTask extends Task {
     }
 
     public void updateStatus () {
+        if (subTasks.isEmpty()) {
+            super.setStatus(TaskStatus.NEW);
+            return;
+        }
         boolean isDone = false;
         boolean isNew = false;
         boolean isInProgress = false;
@@ -61,5 +67,10 @@ public class EpicTask extends Task {
         } else {
             super.setStatus(TaskStatus.IN_PROGRESS);
         }
+    }
+
+    public void cleanSubtaskIds () {
+        subTasks.clear();
+        updateStatus();
     }
 }
