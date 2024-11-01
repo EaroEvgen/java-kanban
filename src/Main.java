@@ -1,13 +1,15 @@
+import ru.yandex.controllers.Managers;
 import ru.yandex.controllers.TaskManager;
 import ru.yandex.task.*;
 
 import java.util.HashMap;
+import java.util.List;
 
 public class Main {
 
     public static void main(String[] args) {
         System.out.println("Поехали!");
-        TaskManager taskManager = new TaskManager();
+        TaskManager taskManager = Managers.getDefault();
         taskManager.addTask(new Task("task name 1", "task description 1"));
         taskManager.addTask(new Task("task name 2", "task description 2"));
         taskManager.addTask(new Task("task name 3", "task description 3"));
@@ -67,19 +69,19 @@ public class Main {
         taskManager.addTask(new Task("dwdw", "nbgfytycsvejhs"));
         printAllTasks(taskManager);
         System.out.println("-----------------------------------------------------");
-        System.out.println(taskManager.getSubTaskList(12));
+        System.out.println(taskManager.getTaskHistory());
     }
 
     public static void printAllTasks (TaskManager taskManager) {
         if (taskManager == null) {
             return;
         }
-        HashMap<Integer, Task> taskList = taskManager.getTaskList();
-        HashMap<Integer, EpicTask> epicTaskList = taskManager.getEpicTaskList();
-        for (Task task : taskList.values()) {
+        List<Task> taskList = taskManager.getTaskList();
+        List<EpicTask> epicTaskList = taskManager.getEpicTaskList();
+        for (Task task : taskList) {
             System.out.println(task);
         }
-        for (EpicTask task : epicTaskList.values()) {
+        for (EpicTask task : epicTaskList) {
             System.out.println(task);
             for (SubTask subTask : task.getSubTaskList()) {
                 System.out.println(" -> " + subTask);

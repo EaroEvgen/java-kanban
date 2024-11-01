@@ -13,6 +13,13 @@ public class Task {
         this.status = TaskStatus.NEW;
     }
 
+    public Task(String name, String description, TaskStatus status) {
+        this.id = CounterID.getNextID();
+        this.name = name;
+        this.description = description;
+        this.status = status;
+    }
+
     public int getId() {
         return id;
     }
