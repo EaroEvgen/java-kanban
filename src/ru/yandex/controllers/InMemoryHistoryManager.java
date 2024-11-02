@@ -15,6 +15,9 @@ public class InMemoryHistoryManager implements HistoryManager {
     }
 
     public void add(Task task) {
+        if (task == null) {
+            return;
+        }
         if (taskHistory.size() >= MAX_HISTORY_COUNT) {
             taskHistory.removeFirst();
         }

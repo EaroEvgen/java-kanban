@@ -20,74 +20,65 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public int addTask (Task task) {
-        if (task == null) {
-            return -1;
+    public <T extends Task> int addTask (T task) {
+        switch (task) {
+            case null -> {
+                return -1;
+            }
+            case EpicTask epicTask -> {
+                epicTaskList.put(task.getId(), epicTask);
+                return task.getId();
+            }
+            case SubTask subTask -> {
+                if (subTask.getEpicTask() == null) {
+                    return -2;
+                }
+                subTaskList.put(task.getId(), subTask);
+                subTask.getEpicTask().addSubTask(subTask);
+                return task.getId();
+            }
+            default -> {
+                taskList.put(task.getId(), task);
+                return task.getId();
+            }
         }
-        taskList.put(task.getId(), task);
-        return task.getId();
     }
 
     @Override
-    public int addTask (EpicTask task) {
-        if (task == null) {
-            return -1;
+    public <T extends Task> void updateTask (T task) {
+        switch (task) {
+            case null -> {
+                return;
+            }
+            case EpicTask epicTask -> {
+                if (!epicTaskList.containsKey(task.getId())) {
+                    return;
+                }
+                epicTaskList.remove(task.getId());
+                epicTaskList.put(task.getId(), epicTask);
+                return;
+            }
+            case SubTask subTask -> {
+                if (!subTaskList.containsKey(task.getId())) {
+                    return;
+                }
+                SubTask currentSubTask = subTaskList.get(subTask.getId());
+                EpicTask currentEpicTask = currentSubTask.getEpicTask();
+                currentEpicTask.removeSubTask(currentSubTask);
+                currentEpicTask.addSubTask(subTask);
+                subTaskList.remove(subTask.getId());
+                subTaskList.put(subTask.getId(), subTask);
+                return;
+            }
+            default -> {
+                if (!taskList.containsKey(task.getId())) {
+                    return;
+                }
+                taskList.remove(task.getId());
+                taskList.put(task.getId(), task);
+                return;
+            }
         }
-        epicTaskList.put(task.getId(), task);
-        return task.getId();
-    }
-
-    @Override
-    public int addTask (SubTask task) {
-        if (task == null) {
-            return -1;
-        }
-        if (task.getEpicTask() == null) {
-            return -2;
-        }
-        subTaskList.put(task.getId(), task);
-        task.getEpicTask().addSubTask(task);
-        return task.getId();
-    }
-
-    @Override
-    public void updateTask (Task task) {
-        if (task == null) {
-            return;
-        }
-        if (!taskList.containsKey(task.getId())) {
-            return;
-        }
-        taskList.remove(task.getId());
-        taskList.put(task.getId(), task);
-    }
-
-    @Override
-    public void updateTask (EpicTask task) {
-        if (task == null) {
-            return;
-        }
-        if (!epicTaskList.containsKey(task.getId())) {
-            return;
-        }
-        epicTaskList.remove(task.getId());
-        epicTaskList.put(task.getId(), task);
-    }
-
-    @Override
-    public void updateTask (SubTask task) {
-        if (task == null) {
-            return;
-        }
-        if (!subTaskList.containsKey(task.getId())) {
-            return;
-        }
-        SubTask currentSubTask = subTaskList.get(task.getId());
-        EpicTask currentEpicTask = currentSubTask.getEpicTask();
-        currentEpicTask.removeSubTask(currentSubTask);
-        currentEpicTask.addSubTask(task);
-        subTaskList.remove(task.getId());
-        subTaskList.put(task.getId(), task);
     }
 
     @Override
@@ -124,7 +115,7 @@ public class InMemoryTaskManager implements TaskManager {
         } else if (subTaskList.containsKey(id)) {
             currentTask = subTaskList.get(id);
         }
-        setTaskHistory(currentTask);
+        historyManager.add(currentTask);
         return currentTask;
     }
 
@@ -158,17 +149,13 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public List<Task> getSubTaskList() {
+    public List<SubTask> getSubTaskList() {
         return new ArrayList<>(subTaskList.values());
     }
 
     @Override
     public List<SubTask> getSubTaskList(int epicTaskID) {
         return ((EpicTask) getTaskByID(epicTaskID)).getSubTaskList();
-    }
-
-    private void setTaskHistory (Task task) {
-        historyManager.add(task);
     }
 
     @Override
