@@ -11,7 +11,7 @@ public class InMemoryHistoryManager implements HistoryManager {
     private final static int MAX_HISTORY_COUNT = 10;
 
     public InMemoryHistoryManager() {
-        this.taskHistory = new ArrayList<>();
+        taskHistory = new ArrayList<>();
     }
 
     public void add(Task task) {
@@ -24,6 +24,6 @@ public class InMemoryHistoryManager implements HistoryManager {
         taskHistory.add(task);
     }
     public List<Task> getHistory() {
-        return this.taskHistory;
+        return taskHistory;
     }
 }

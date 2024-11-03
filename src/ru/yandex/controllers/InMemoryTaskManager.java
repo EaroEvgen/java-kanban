@@ -97,11 +97,11 @@ public class InMemoryTaskManager implements TaskManager {
         if (taskList.containsKey(id)) {
             taskList.get(id).setStatus(status);
         }
-        if (epicTaskList.containsKey(id)) {
-            epicTaskList.get(id).setStatus(status);
-        }
         if (subTaskList.containsKey(id)) {
             subTaskList.get(id).setStatus(status);
+            // статус эпика обновляет подзадача. Я посчитал
+            // что так сложнее ошибиться будет и подзадача
+            // имеет ссылку на свой эпик...
         }
     }
 
@@ -155,7 +155,7 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public List<SubTask> getSubTaskList(int epicTaskID) {
-        return ((EpicTask) getTaskByID(epicTaskID)).getSubTaskList();
+        return epicTaskList.get(epicTaskID).getSubTaskList();
     }
 
     @Override

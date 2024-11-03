@@ -5,18 +5,18 @@ import java.util.List;
 import ru.yandex.task.*;
 
 public interface TaskManager {
-    public <T extends Task> int addTask (T task);
-    public <T extends Task> void updateTask (T task);
-    public void removeByID (int id);
-    public void setTaskStatusByID (int id, TaskStatus status);
-    public Task getTaskByID (int id);
-    public void deleteTasks();
-    public void deleteSubtasks();
-    public void deleteEpics();
-    public List<Task> getTaskList();
-    public List<EpicTask> getEpicTaskList();
-    public List<SubTask> getSubTaskList();
-    public List<SubTask> getSubTaskList(int epicTaskID);
-    public List<Task> getTaskHistory ();
+    <T extends Task> int addTask (T task);
+    <T extends Task> void updateTask (T task);
+    void removeByID (int id);
+    void setTaskStatusByID (int id, TaskStatus status);
+    Task getTaskByID (int id);
+    void deleteTasks();
+    void deleteSubtasks();
+    void deleteEpics();
+    List<Task> getTaskList();
+    List<EpicTask> getEpicTaskList();
+    List<SubTask> getSubTaskList();
+    List<SubTask> getSubTaskList(int epicTaskID);
+    List<Task> getTaskHistory ();
 
 }

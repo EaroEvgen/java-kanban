@@ -34,10 +34,6 @@ public class EpicTask extends Task {
         updateStatus();
     }
 
-    public void clearSubTask () {
-        subTasks.clear();
-    }
-
     public ArrayList<SubTask> getSubTaskList () {
         return subTasks;
     }
