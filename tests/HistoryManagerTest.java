@@ -7,6 +7,7 @@ import ru.yandex.task.Task;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 public class HistoryManagerTest {
     private static HistoryManager historyManager;
@@ -26,28 +27,40 @@ public class HistoryManagerTest {
     }
 
     @Test
-    void addMaxHistory() {
-        List<Task> history = new ArrayList<>();
-        for (int i = 0; i < 10; i++) {
-            history.add(new Task("Name task # " + (i + 1) + ".", "Description task# " + (i + 1) + "."));
-            historyManager.add(history.get(i));
+    void removeAllPerOne() {
+        List<Task> curList = new ArrayList<>();
+        int countData = 200;
+        for (int i = 0; i < countData; i++) {
+            Task curTask = new Task("Name task " + i + ".", "Description task");
+            historyManager.add(curTask);
+            curList.add(curTask);
         }
 
-        List<Task> historyReturn = historyManager.getHistory();
-        Assertions.assertTrue(history.containsAll(historyReturn)
-                && historyReturn.containsAll(history), "Не влезло 10 записей в историю");
-
-
-        history.clear();
-        Task task = new Task("Name task", "Description task");
-        for (int i = 0; i < 10; i++) {
-            historyManager.add(task);
-            history.add(task);
+        for (Task task : curList) {
+            historyManager.remove(task.getId());
         }
 
-        historyReturn = historyManager.getHistory();
-        Assertions.assertTrue(history.containsAll(historyReturn)
-                && historyReturn.containsAll(history), "Не переписывает историю");
+        final List<Task> history = historyManager.getHistory();
+        Assertions.assertNotNull(history, "История не пустая.");
     }
 
+    @Test
+    void removeRandomHistory() {
+        List<Task> curList = new ArrayList<>();
+        int countData = 200;
+        Random random = new Random();
+        for (int i = 0; i < countData; i++) {
+            Task curTask = new Task("Name task " + i + ".", "Description task");
+            historyManager.add(curTask);
+            curList.add(curTask);
+        }
+
+        while (!curList.isEmpty()) {
+            int randomInt = random.nextInt(curList.size());
+            historyManager.remove(randomInt + 1);
+            curList.remove(randomInt);
+        }
+
+        Assertions.assertNotNull(historyManager.getHistory(), "История не пустая.");
+    }
 }

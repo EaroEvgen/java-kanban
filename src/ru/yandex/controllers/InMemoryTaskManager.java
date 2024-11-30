@@ -90,6 +90,7 @@ public class InMemoryTaskManager implements TaskManager {
             currentSubTask.getEpicTask().removeSubTask(currentSubTask);
             subTaskList.remove(id);
         }
+        historyManager.remove(id);
     }
 
     @Override
