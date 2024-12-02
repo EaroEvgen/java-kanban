@@ -33,6 +33,7 @@ public class InMemoryHistoryManager implements HistoryManager {
         tailHistory = currentNode;
         taskHistory.put(task.getId(), currentNode);
     }
+
     public List<Task> getHistory() {
         List<Task> currentTaskList = new ArrayList<>();
         for (TaskNode node : taskHistory.values()) {

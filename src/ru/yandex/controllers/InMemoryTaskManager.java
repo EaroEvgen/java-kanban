@@ -1,4 +1,5 @@
 package ru.yandex.controllers;
+
 import ru.yandex.task.*;
 
 import java.util.ArrayList;
@@ -20,7 +21,7 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public <T extends Task> int addTask (T task) {
+    public <T extends Task> int addTask(T task) {
         switch (task) {
             case null -> {
                 return -1;
@@ -45,7 +46,7 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public <T extends Task> void updateTask (T task) {
+    public <T extends Task> void updateTask(T task) {
         switch (task) {
             case null -> {
                 return;
@@ -82,7 +83,7 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public void removeByID (int id) {
+    public void removeByID(int id) {
         taskList.remove(id);
         epicTaskList.remove(id);
         if (subTaskList.containsKey(id)) {
@@ -94,7 +95,7 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public void setTaskStatusByID (int id, TaskStatus status) {
+    public void setTaskStatusByID(int id, TaskStatus status) {
         if (taskList.containsKey(id)) {
             taskList.get(id).setStatus(status);
         }
@@ -107,7 +108,7 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public Task getTaskByID (int id) {
+    public Task getTaskByID(int id) {
         Task currentTask = null;
         if (taskList.containsKey(id)) {
             currentTask = taskList.get(id);
@@ -160,7 +161,7 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public List<Task> getTaskHistory () {
+    public List<Task> getTaskHistory() {
         return historyManager.getHistory();
     }
 }
