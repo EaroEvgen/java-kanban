@@ -9,8 +9,8 @@ import java.util.Map;
 import java.util.List;
 
 public class InMemoryHistoryManager implements HistoryManager {
-    TaskNode headHistory;
-    TaskNode tailHistory;
+    private TaskNode headHistory;
+    private TaskNode tailHistory;
     private final Map<Integer, TaskNode> taskHistory;
 
     public InMemoryHistoryManager() {
@@ -36,18 +36,19 @@ public class InMemoryHistoryManager implements HistoryManager {
 
     public List<Task> getHistory() {
         List<Task> currentTaskList = new ArrayList<>();
-        for (TaskNode node : taskHistory.values()) {
+        TaskNode node = headHistory;
+        while (node != null){
             currentTaskList.add(node.getTask());
+            node = node.getNext();
         }
         return currentTaskList;
     }
 
     public void remove(int id) {
-        if (!taskHistory.containsKey(id)) {
+        TaskNode currentNode = taskHistory.remove(id);
+        if (currentNode == null) {
             return;
         }
-
-        TaskNode currentNode = taskHistory.get(id);
         TaskNode nextNode = currentNode.getNext();
         TaskNode previousNode = currentNode.getPrevious();
 
@@ -62,6 +63,5 @@ public class InMemoryHistoryManager implements HistoryManager {
         } else {
             nextNode.setPrevious(previousNode);
         }
-        taskHistory.remove(id);
     }
 }
