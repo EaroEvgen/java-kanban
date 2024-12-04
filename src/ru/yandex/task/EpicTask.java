@@ -1,10 +1,11 @@
 package ru.yandex.task;
+
 import java.util.ArrayList;
 
 public class EpicTask extends Task {
     private final ArrayList<SubTask> subTasks;
 
-    public EpicTask (String name, String description) {
+    public EpicTask(String name, String description) {
         super(name, description);
         subTasks = new ArrayList<>();
     }
@@ -14,7 +15,7 @@ public class EpicTask extends Task {
         System.out.println("Статус эпической задачи меняется автоматически вместе с подзадачами.");
     }
 
-    public void addSubTask (SubTask subTask) {
+    public void addSubTask(SubTask subTask) {
         if (subTask == null) {
             System.out.println("Обращение к объекту равному null.");
             return;
@@ -25,7 +26,7 @@ public class EpicTask extends Task {
         updateStatus();
     }
 
-    public void removeSubTask (SubTask subTask) {
+    public void removeSubTask(SubTask subTask) {
         if (subTask == null) {
             System.out.println("Обращение к объекту равному null.");
             return;
@@ -34,11 +35,11 @@ public class EpicTask extends Task {
         updateStatus();
     }
 
-    public ArrayList<SubTask> getSubTaskList () {
+    public ArrayList<SubTask> getSubTaskList() {
         return subTasks;
     }
 
-    public void updateStatus () {
+    public void updateStatus() {
         if (subTasks.isEmpty()) {
             super.setStatus(TaskStatus.NEW);
             return;
@@ -65,7 +66,7 @@ public class EpicTask extends Task {
         }
     }
 
-    public void cleanSubtaskIds () {
+    public void cleanSubtaskIds() {
         subTasks.clear();
         updateStatus();
     }

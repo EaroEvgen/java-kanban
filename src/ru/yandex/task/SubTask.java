@@ -3,7 +3,7 @@ package ru.yandex.task;
 public class SubTask extends Task {
     private EpicTask epicTask;
 
-    public SubTask (String name, String description, Task epicTask) {
+    public SubTask(String name, String description, Task epicTask) {
         super(name, description);
         if (epicTask.getClass() == EpicTask.class) {
             this.epicTask = (EpicTask) epicTask;

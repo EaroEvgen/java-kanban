@@ -25,13 +25,13 @@ public class Main {
 
         taskManager.setTaskStatusByID(1, TaskStatus.IN_PROGRESS);
         taskManager.setTaskStatusByID(2, TaskStatus.DONE);
-        for (SubTask subTask :((EpicTask) taskManager.getTaskByID(4)).getSubTaskList()) {
+        for (SubTask subTask : ((EpicTask) taskManager.getTaskByID(4)).getSubTaskList()) {
             subTask.setStatus(TaskStatus.IN_PROGRESS);
         }
-        for (SubTask subTask :((EpicTask) taskManager.getTaskByID(5)).getSubTaskList()) {
+        for (SubTask subTask : ((EpicTask) taskManager.getTaskByID(5)).getSubTaskList()) {
             subTask.setStatus(TaskStatus.DONE);
         }
-        for (SubTask subTask :((EpicTask) taskManager.getTaskByID(6)).getSubTaskList()) {
+        for (SubTask subTask : ((EpicTask) taskManager.getTaskByID(6)).getSubTaskList()) {
             subTask.setStatus(TaskStatus.DONE);
         }
 
@@ -71,7 +71,7 @@ public class Main {
         System.out.println(taskManager.getTaskHistory());
     }
 
-    public static void printAllTasks (TaskManager taskManager) {
+    public static void printAllTasks(TaskManager taskManager) {
         if (taskManager == null) {
             return;
         }
