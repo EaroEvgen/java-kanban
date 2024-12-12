@@ -1,5 +1,4 @@
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Assertions;
 
@@ -22,7 +21,7 @@ public class FileBackedTaskManagerTest {
     @Test
     void methodGetAllTaskList() {
         Task task = new Task("Task name", "Test addNewTask description", TaskStatus.NEW);
-        EpicTask epicTask = new  EpicTask("Epik task name", "Epik task description");
+        EpicTask epicTask = new EpicTask("Epik task name", "Epik task description");
         SubTask subTask = new SubTask("subtask name", "subtask description", epicTask);
 
         taskManager.addTask(task);
@@ -46,7 +45,7 @@ public class FileBackedTaskManagerTest {
     @Test
     void methodLoadFromFile() {
         Task task = new Task("Task name", "Test addNewTask description", TaskStatus.NEW);
-        EpicTask epicTask = new  EpicTask("Epik task name", "Epik task description");
+        EpicTask epicTask = new EpicTask("Epik task name", "Epik task description");
         SubTask subTask = new SubTask("subtask name", "subtask description", epicTask);
 
         taskManager.addTask(task);

@@ -6,20 +6,13 @@ import ru.yandex.task.Task;
 import ru.yandex.task.TaskStatus;
 
 import java.io.*;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.util.HashMap;
 
 public class FileBackedTaskManager extends InMemoryTaskManager implements TaskManager {
 
     final static private String NAME_FILE_FOR_SAVE = "TaskSave.csv";
     final static private String SEPARATOR = ";";
 
-    static void main(String[] args) {
-
-    }
-
-    public boolean save() {
+    public void save() {
         StringBuilder curTask = new StringBuilder();
         curTask.append("Task" + SEPARATOR
                 + "ID" + SEPARATOR
@@ -30,20 +23,20 @@ public class FileBackedTaskManager extends InMemoryTaskManager implements TaskMa
         curTask.append("\n");
 
         for (Task task : super.getTaskList()) {
-            curTask.append("Task" + SEPARATOR
-                    + task.getId() + SEPARATOR
-                    + task.getName() + SEPARATOR
-                    + task.getDescription() + SEPARATOR
-                    + task.getStatus() + SEPARATOR);
+            curTask.append("Task" + SEPARATOR).
+                    append(task.getId()).append(SEPARATOR).
+                    append(task.getName()).append(SEPARATOR).
+                    append(task.getDescription()).append(SEPARATOR).
+                    append(task.getStatus()).append(SEPARATOR);
             curTask.append("\n");
         }
 
         for (EpicTask task : super.getEpicTaskList()) {
-            curTask.append("EpicTask" + SEPARATOR
-                    + task.getId() + SEPARATOR
-                    + task.getName() + SEPARATOR
-                    + task.getDescription() + SEPARATOR
-                    + task.getStatus() + SEPARATOR);
+            curTask.append("EpicTask" + SEPARATOR).
+                    append(task.getId()).append(SEPARATOR).
+                    append(task.getName()).append(SEPARATOR).
+                    append(task.getDescription()).append(SEPARATOR).
+                    append(task.getStatus()).append(SEPARATOR);
 
             for (SubTask subTask : task.getSubTaskList()) {
                 curTask.append(subTask.getId()).append(SEPARATOR);
@@ -52,12 +45,12 @@ public class FileBackedTaskManager extends InMemoryTaskManager implements TaskMa
         }
 
         for (SubTask task : super.getSubTaskList()) {
-            curTask.append("SubTask" + SEPARATOR
-                    + task.getId() + SEPARATOR
-                    + task.getName() + SEPARATOR
-                    + task.getDescription() + SEPARATOR
-                    + task.getStatus() + SEPARATOR
-                    + task.getEpicTask().getId() + SEPARATOR);
+            curTask.append("SubTask" + SEPARATOR).
+                    append(task.getId()).append(SEPARATOR).
+                    append(task.getName()).append(SEPARATOR).
+                    append(task.getDescription()).append(SEPARATOR).
+                    append(task.getStatus()).append(SEPARATOR).
+                    append(task.getEpicTask().getId()).append(SEPARATOR);
             curTask.append("\n");
         }
 
@@ -66,7 +59,6 @@ public class FileBackedTaskManager extends InMemoryTaskManager implements TaskMa
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        return false;
     }
 
     public static FileBackedTaskManager loadFromFile(File file) {
@@ -74,16 +66,14 @@ public class FileBackedTaskManager extends InMemoryTaskManager implements TaskMa
         String curTaskLine;
         try (Reader reader = new FileReader(file.getPath())) {
             BufferedReader br = new BufferedReader(reader);
-            curTaskLine = br.readLine();
+            br.readLine();
             while (br.ready()) {
                 curTaskLine = br.readLine();
                 String[] curTaskMassTask = curTaskLine.split(SEPARATOR);
-                if (curTaskMassTask[0].equals("Task")) {
-                    curManager.addTask(getTaskFromString(curTaskMassTask));
-                } else if (curTaskMassTask[0].equals("EpicTask")) {
-                    curManager.addTask(getEpicTaskFromString(curTaskMassTask));
-                } else if (curTaskMassTask[0].equals("SubTask")) {
-                    curManager.addTask(getSubTaskFromString(curTaskMassTask,
+                switch (curTaskMassTask[0]) {
+                    case "Task" -> curManager.addTask(getTaskFromString(curTaskMassTask));
+                    case "EpicTask" -> curManager.addTask(getEpicTaskFromString(curTaskMassTask));
+                    case "SubTask" -> curManager.addTask(getSubTaskFromString(curTaskMassTask,
                             (EpicTask) curManager.getTaskByID(Integer.parseInt(curTaskMassTask[5]))));
                 }
             }
