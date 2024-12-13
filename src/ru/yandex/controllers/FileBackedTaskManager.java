@@ -9,8 +9,8 @@ import java.io.*;
 
 public class FileBackedTaskManager extends InMemoryTaskManager implements TaskManager {
 
-    final static private String NAME_FILE_FOR_SAVE = "TaskSave.csv";
-    final static private String SEPARATOR = ";";
+    private static final String NAME_FILE_FOR_SAVE = "TaskSave.csv";
+    private static final String SEPARATOR = ";";
 
     public void save() {
         StringBuilder curTask = new StringBuilder();
@@ -23,20 +23,20 @@ public class FileBackedTaskManager extends InMemoryTaskManager implements TaskMa
         curTask.append("\n");
 
         for (Task task : super.getTaskList()) {
-            curTask.append("Task" + SEPARATOR).
-                    append(task.getId()).append(SEPARATOR).
-                    append(task.getName()).append(SEPARATOR).
-                    append(task.getDescription()).append(SEPARATOR).
-                    append(task.getStatus()).append(SEPARATOR);
+            curTask.append("Task" + SEPARATOR)
+                    .append(task.getId()).append(SEPARATOR)
+                    .append(task.getName()).append(SEPARATOR)
+                    .append(task.getDescription()).append(SEPARATOR)
+                    .append(task.getStatus()).append(SEPARATOR);
             curTask.append("\n");
         }
 
         for (EpicTask task : super.getEpicTaskList()) {
-            curTask.append("EpicTask" + SEPARATOR).
-                    append(task.getId()).append(SEPARATOR).
-                    append(task.getName()).append(SEPARATOR).
-                    append(task.getDescription()).append(SEPARATOR).
-                    append(task.getStatus()).append(SEPARATOR);
+            curTask.append("EpicTask" + SEPARATOR)
+                    .append(task.getId()).append(SEPARATOR)
+                    .append(task.getName()).append(SEPARATOR)
+                    .append(task.getDescription()).append(SEPARATOR)
+                    .append(task.getStatus()).append(SEPARATOR);
 
             for (SubTask subTask : task.getSubTaskList()) {
                 curTask.append(subTask.getId()).append(SEPARATOR);
@@ -45,12 +45,12 @@ public class FileBackedTaskManager extends InMemoryTaskManager implements TaskMa
         }
 
         for (SubTask task : super.getSubTaskList()) {
-            curTask.append("SubTask" + SEPARATOR).
-                    append(task.getId()).append(SEPARATOR).
-                    append(task.getName()).append(SEPARATOR).
-                    append(task.getDescription()).append(SEPARATOR).
-                    append(task.getStatus()).append(SEPARATOR).
-                    append(task.getEpicTask().getId()).append(SEPARATOR);
+            curTask.append("SubTask" + SEPARATOR)
+                    .append(task.getId()).append(SEPARATOR)
+                    .append(task.getName()).append(SEPARATOR)
+                    .append(task.getDescription()).append(SEPARATOR)
+                    .append(task.getStatus()).append(SEPARATOR)
+                    .append(task.getEpicTask().getId()).append(SEPARATOR);
             curTask.append("\n");
         }
 
