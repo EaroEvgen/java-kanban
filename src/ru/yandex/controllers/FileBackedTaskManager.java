@@ -1,5 +1,6 @@
 package ru.yandex.controllers;
 
+import ru.yandex.exceptions.ManagerSaveException;
 import ru.yandex.task.EpicTask;
 import ru.yandex.task.SubTask;
 import ru.yandex.task.Task;
@@ -7,7 +8,7 @@ import ru.yandex.task.TaskStatus;
 
 import java.io.*;
 
-public class FileBackedTaskManager extends InMemoryTaskManager implements TaskManager {
+public class FileBackedTaskManager extends InMemoryTaskManager {
 
     private static final String NAME_FILE_FOR_SAVE = "TaskSave.csv";
     private static final String SEPARATOR = ";";
@@ -57,7 +58,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager implements TaskMa
         try (Writer writer = new FileWriter("./" + NAME_FILE_FOR_SAVE)) {
             writer.write(curTask.toString());
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new ManagerSaveException("Ошибка записи в файл: " + "./" + NAME_FILE_FOR_SAVE, e);
         }
     }
 
@@ -78,7 +79,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager implements TaskMa
                 }
             }
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new ManagerSaveException("Ошибка чтения из файла: " + "./" + NAME_FILE_FOR_SAVE, e);
         }
         return curManager;
     }
@@ -119,5 +120,41 @@ public class FileBackedTaskManager extends InMemoryTaskManager implements TaskMa
             save();
         }
         return result;
+    }
+
+    @Override
+    public <T extends Task> void updateTask(T task) {
+        super.updateTask(task);
+        save();
+    }
+
+    @Override
+    public void removeByID(int id) {
+        super.removeByID(id);
+        save();
+    }
+
+    @Override
+    public void setTaskStatusByID(int id, TaskStatus status) {
+        super.setTaskStatusByID(id, status);
+        save();
+    }
+
+    @Override
+    public void deleteTasks() {
+        super.deleteTasks();
+        save();
+    }
+
+    @Override
+    public void deleteSubtasks() {
+        super.deleteSubtasks();
+        save();
+    }
+
+    @Override
+    public void deleteEpics() {
+        super.deleteEpics();
+        save();
     }
 }
