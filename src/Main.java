@@ -7,7 +7,7 @@ import java.util.List;
 public class Main {
 
     public static void main(String[] args) {
-        System.out.println("Поехали!");
+        /*System.out.println("Поехали!");
         TaskManager taskManager = Managers.getDefault();
         taskManager.addTask(new Task("task name 1", "task description 1"));
         taskManager.addTask(new Task("task name 2", "task description 2"));
@@ -68,7 +68,7 @@ public class Main {
         taskManager.addTask(new Task("dwdw", "nbgfytycsvejhs"));
         printAllTasks(taskManager);
         System.out.println("-----------------------------------------------------");
-        System.out.println(taskManager.getTaskHistory());
+        System.out.println(taskManager.getTaskHistory());*/
     }
 
     public static void printAllTasks(TaskManager taskManager) {

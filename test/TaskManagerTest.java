@@ -6,6 +6,8 @@ import org.junit.jupiter.api.Assertions;
 import ru.yandex.task.*;
 import ru.yandex.controllers.*;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -19,7 +21,7 @@ public class TaskManagerTest {
 
     @Test
     void addNewTask() {
-        Task task = new Task("Test addNewTask", "Test addNewTask description", TaskStatus.NEW);
+        Task task = new Task("Test addNewTask", "Test addNewTask description", TaskStatus.NEW, LocalDateTime.now(), Duration.ofMinutes(10));
         int taskId = taskManager.addTask(task);
 
         final Task savedTask = taskManager.getTaskByID(taskId);
@@ -36,9 +38,9 @@ public class TaskManagerTest {
 
     @Test
     void safeTaskAllTypes () {
-        Task task = new Task("Task name", "Test addNewTask description", TaskStatus.NEW);
+        Task task = new Task("Task name", "Test addNewTask description", TaskStatus.NEW, LocalDateTime.now().plusHours(1), Duration.ofMinutes(10));
         EpicTask epicTask = new  EpicTask("Epik task name", "Epik task description");
-        SubTask subTask = new SubTask("subtask name", "subtask description", epicTask);
+        SubTask subTask = new SubTask("subtask name", "subtask description", epicTask, LocalDateTime.now().plusHours(1), Duration.ofMinutes(10));
 
         int taskId = taskManager.addTask(task);
         int epicTaskId = taskManager.addTask(epicTask);
@@ -51,9 +53,9 @@ public class TaskManagerTest {
 
     @Test
     void methodGetAllTaskList() {
-        Task task = new Task("Task name", "Test addNewTask description", TaskStatus.NEW);
+        Task task = new Task("Task name", "Test addNewTask description", TaskStatus.NEW, LocalDateTime.now(), Duration.ofMinutes(10));
         EpicTask epicTask = new  EpicTask("Epik task name", "Epik task description");
-        SubTask subTask = new SubTask("subtask name", "subtask description", epicTask);
+        SubTask subTask = new SubTask("subtask name", "subtask description", epicTask, LocalDateTime.now().plusHours(1), Duration.ofMinutes(10));
 
         taskManager.addTask(task);
         taskManager.addTask(epicTask);
@@ -76,9 +78,9 @@ public class TaskManagerTest {
 
     @Test
     void methodClearList() {
-        Task task = new Task("Task name", "Test addNewTask description", TaskStatus.NEW);
+        Task task = new Task("Task name", "Test addNewTask description", TaskStatus.NEW, LocalDateTime.now().plusHours(1), Duration.ofMinutes(10));
         EpicTask epicTask = new  EpicTask("Epik task name", "Epik task description");
-        SubTask subTask = new SubTask("subtask name", "subtask description", epicTask);
+        SubTask subTask = new SubTask("subtask name", "subtask description", epicTask, LocalDateTime.now().plusHours(1), Duration.ofMinutes(10));
 
         taskManager.addTask(task);
         taskManager.addTask(epicTask);
@@ -95,19 +97,19 @@ public class TaskManagerTest {
 
     @Test
     void methodUpdateTask () {
-        Task task = new Task("Task name", "Test addNewTask description", TaskStatus.NEW);
+        Task task = new Task("Task name", "Test addNewTask description", TaskStatus.NEW, LocalDateTime.now().plusHours(1), Duration.ofMinutes(10));
         EpicTask epicTask = new  EpicTask("Epik task name", "Epik task description");
-        SubTask subTask = new SubTask("subtask name", "subtask description", epicTask);
+        SubTask subTask = new SubTask("subtask name", "subtask description", epicTask, LocalDateTime.now().plusHours(1), Duration.ofMinutes(10));
 
         int taskId = taskManager.addTask(task);
         int epicTaskId = taskManager.addTask(epicTask);
         int subTaskId = taskManager.addTask(subTask);
 
-        task = new Task("NEW Task name", "Test addNewTask description", TaskStatus.NEW);
+        task = new Task("NEW Task name", "Test addNewTask description", TaskStatus.NEW, LocalDateTime.now(), Duration.ofMinutes(10));
         task.setId(taskId);
         epicTask = new  EpicTask("NEW Epik task name", "Epik task description");
         epicTask.setId(epicTaskId);
-        subTask = new SubTask("NEW subtask name", "subtask description", epicTask);
+        subTask = new SubTask("NEW subtask name", "subtask description", epicTask, LocalDateTime.now(), Duration.ofMinutes(10));
         subTask.setId(subTaskId);
 
         taskManager.updateTask(task);
@@ -122,9 +124,9 @@ public class TaskManagerTest {
 
     @Test
     void methodRemoveByID () {
-        Task task = new Task("Task name", "Test addNewTask description", TaskStatus.NEW);
+        Task task = new Task("Task name", "Test addNewTask description", TaskStatus.NEW, LocalDateTime.now(), Duration.ofMinutes(10));
         EpicTask epicTask = new  EpicTask("Epik task name", "Epik task description");
-        SubTask subTask = new SubTask("subtask name", "subtask description", epicTask);
+        SubTask subTask = new SubTask("subtask name", "subtask description", epicTask, LocalDateTime.now(), Duration.ofMinutes(10));
 
         int taskId = taskManager.addTask(task);
         int epicTaskId = taskManager.addTask(epicTask);
@@ -140,7 +142,7 @@ public class TaskManagerTest {
     @Test
     void getSubtaskInEpictask () {
         EpicTask epicTask = new  EpicTask("Epik task name", "Epik task description");
-        SubTask subTask = new SubTask("subtask name", "subtask description", epicTask);
+        SubTask subTask = new SubTask("subtask name", "subtask description", epicTask, LocalDateTime.now(), Duration.ofMinutes(10));
 
         int epicTaskId = taskManager.addTask(epicTask);
         taskManager.addTask(subTask);
@@ -155,10 +157,10 @@ public class TaskManagerTest {
 
     @Test
     void checkChangeStatus () {
-        Task task = new Task("Task name", "Test addNewTask description", TaskStatus.NEW);
+        Task task = new Task("Task name", "Test addNewTask description", TaskStatus.NEW, LocalDateTime.now(), Duration.ofMinutes(10));
         EpicTask epicTask = new  EpicTask("Epik task name", "Epik task description");
-        SubTask subTask = new SubTask("subtask name", "subtask description", epicTask);
-        SubTask subTaskNew = new SubTask("new subtask name", "new subtask description", epicTask);
+        SubTask subTask = new SubTask("subtask name", "subtask description", epicTask, LocalDateTime.now(), Duration.ofMinutes(10));
+        SubTask subTaskNew = new SubTask("new subtask name", "new subtask description", epicTask, LocalDateTime.now(), Duration.ofMinutes(10));
 
         int taskId = taskManager.addTask(task);
         int epicTaskId = taskManager.addTask(epicTask);
