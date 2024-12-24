@@ -1,12 +1,14 @@
 package ru.yandex.task;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 
 public class EpicTask extends Task {
     private final ArrayList<SubTask> subTasks;
 
     public EpicTask(String name, String description) {
-        super(name, description);
+        super(name, description, LocalDateTime.now(), Duration.ZERO);
         subTasks = new ArrayList<>();
     }
 
@@ -24,6 +26,7 @@ public class EpicTask extends Task {
             subTasks.add(subTask);
         }
         updateStatus();
+        updateTime();
     }
 
     public void removeSubTask(SubTask subTask) {
@@ -33,6 +36,7 @@ public class EpicTask extends Task {
         }
         subTasks.remove(subTask);
         updateStatus();
+        updateTime();
     }
 
     public ArrayList<SubTask> getSubTaskList() {
@@ -69,5 +73,30 @@ public class EpicTask extends Task {
     public void cleanSubtaskIds() {
         subTasks.clear();
         updateStatus();
+    }
+
+    public void updateTime() {
+        subTasks.sort((SubTask sub1, SubTask sub2) -> {
+            if (sub1.getStartTime().isBefore(sub2.getStartTime())) {
+                return -1;
+            } else {
+                return 1;
+            }
+        });
+        if (subTasks.size() <= 0) {
+            super.setStartTime(LocalDateTime.now());
+            super.setDuration(Duration.ZERO);
+            return;
+        }
+        super.setStartTime(subTasks.getFirst().getStartTime());
+        super.setDuration(Duration.between(getStartTime(), subTasks.getLast().getEndTime()));
+    }
+
+    @Override
+    public LocalDateTime getEndTime() {
+        if (subTasks.size() <= 0) {
+            return LocalDateTime.now();
+        }
+        return subTasks.getLast().getEndTime();
     }
 }

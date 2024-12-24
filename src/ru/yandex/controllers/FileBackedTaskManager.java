@@ -7,11 +7,15 @@ import ru.yandex.task.Task;
 import ru.yandex.task.TaskStatus;
 
 import java.io.*;
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 public class FileBackedTaskManager extends InMemoryTaskManager {
 
     private static final String NAME_FILE_FOR_SAVE = "TaskSave.csv";
     private static final String SEPARATOR = ";";
+    private static final String DATA_TIME_FORMATTER = "dd.MM.yyyy HH.mm";
 
     public void save() {
         StringBuilder curTask = new StringBuilder();
@@ -20,7 +24,9 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
                 + "Name" + SEPARATOR
                 + "Description" + SEPARATOR
                 + "Status" + SEPARATOR
-                + "EpicTask, SubTasks" + SEPARATOR);
+                + "EpicTask, SubTasks" + SEPARATOR
+                + "Duration" + SEPARATOR
+                + "StartTime" + SEPARATOR);
         curTask.append("\n");
 
         for (Task task : super.getTaskList()) {
@@ -28,7 +34,9 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
                     .append(task.getId()).append(SEPARATOR)
                     .append(task.getName()).append(SEPARATOR)
                     .append(task.getDescription()).append(SEPARATOR)
-                    .append(task.getStatus()).append(SEPARATOR);
+                    .append(task.getStatus()).append(SEPARATOR).append(SEPARATOR)
+                    .append(task.getDuration().toMinutes()).append(SEPARATOR)
+                    .append(task.getStartTime().format(DateTimeFormatter.ofPattern(DATA_TIME_FORMATTER))).append(SEPARATOR);
             curTask.append("\n");
         }
 
@@ -37,11 +45,14 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
                     .append(task.getId()).append(SEPARATOR)
                     .append(task.getName()).append(SEPARATOR)
                     .append(task.getDescription()).append(SEPARATOR)
-                    .append(task.getStatus()).append(SEPARATOR);
+                    .append(task.getStatus()).append(SEPARATOR)
+                    ;
 
             for (SubTask subTask : task.getSubTaskList()) {
-                curTask.append(subTask.getId()).append(SEPARATOR);
+                curTask.append(subTask.getId()).append(",");
             }
+            curTask.deleteCharAt(curTask.length() - 1).append(SEPARATOR).append(task.getDuration().toMinutes()).append(SEPARATOR)
+                    .append(task.getStartTime().format(DateTimeFormatter.ofPattern(DATA_TIME_FORMATTER))).append(SEPARATOR);
             curTask.append("\n");
         }
 
@@ -51,7 +62,9 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
                     .append(task.getName()).append(SEPARATOR)
                     .append(task.getDescription()).append(SEPARATOR)
                     .append(task.getStatus()).append(SEPARATOR)
-                    .append(task.getEpicTask().getId()).append(SEPARATOR);
+                    .append(task.getEpicTask().getId()).append(SEPARATOR)
+                    .append(task.getDuration().toMinutes()).append(SEPARATOR)
+                    .append(task.getStartTime().format(DateTimeFormatter.ofPattern(DATA_TIME_FORMATTER))).append(SEPARATOR);
             curTask.append("\n");
         }
 
@@ -85,7 +98,9 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
     }
 
     private static Task getTaskFromString(String[] massStringTask) {
-        Task curTask = new Task(massStringTask[2], massStringTask[3]);
+        Task curTask = new Task(massStringTask[2], massStringTask[3],
+                LocalDateTime.parse(massStringTask[7], DateTimeFormatter.ofPattern(DATA_TIME_FORMATTER)),
+                Duration.ofMinutes(Integer.parseInt(massStringTask[6])));
         curTask.setId(Integer.parseInt(massStringTask[1]));
         curTask.setStatus(taskStatusByString(massStringTask[4]));
         return curTask;
@@ -99,7 +114,9 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
 
     private static SubTask getSubTaskFromString(String[] massStringTask, EpicTask epicTask) {
         SubTask curTask;
-        curTask = new SubTask(massStringTask[2], massStringTask[3], epicTask);
+        curTask = new SubTask(massStringTask[2], massStringTask[3], epicTask,
+                LocalDateTime.parse(massStringTask[7], DateTimeFormatter.ofPattern(DATA_TIME_FORMATTER)),
+                Duration.ofMinutes(Integer.parseInt(massStringTask[6])));
         curTask.setId(Integer.parseInt(massStringTask[1]));
         curTask.setStatus(taskStatusByString(massStringTask[4]));
         return curTask;

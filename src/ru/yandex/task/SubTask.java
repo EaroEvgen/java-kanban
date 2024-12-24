@@ -1,10 +1,13 @@
 package ru.yandex.task;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
+
 public class SubTask extends Task {
     private EpicTask epicTask;
 
-    public SubTask(String name, String description, Task epicTask) {
-        super(name, description);
+    public SubTask(String name, String description, Task epicTask, LocalDateTime startTime, Duration duration) {
+        super(name, description, startTime, duration);
         if (epicTask.getClass() == EpicTask.class) {
             this.epicTask = (EpicTask) epicTask;
         } else {
