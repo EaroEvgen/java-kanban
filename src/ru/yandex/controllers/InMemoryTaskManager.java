@@ -2,15 +2,15 @@ package ru.yandex.controllers;
 
 import ru.yandex.task.*;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class InMemoryTaskManager implements TaskManager {
     private final HashMap<Integer, Task> taskList;
     private final HashMap<Integer, EpicTask> epicTaskList;
     private final HashMap<Integer, SubTask> subTaskList;
     private final HistoryManager historyManager;
+    private Set<Task> prioritizedTasks;
 
 
     public InMemoryTaskManager() {
@@ -18,10 +18,24 @@ public class InMemoryTaskManager implements TaskManager {
         this.epicTaskList = new HashMap<>();
         this.subTaskList = new HashMap<>();
         this.historyManager = Managers.getDefaultHistory();
+        this.prioritizedTasks = new TreeSet<>((Task task1, Task task2) -> {
+            if (task1.getStartTime().isBefore(task2.getStartTime())) {
+                return -1;
+            }
+            return 1;
+        });
     }
 
     @Override
     public <T extends Task> int addTask(T task) {
+        if (!checkOverlapsInTime(task)) {
+            System.out.println("Новая задача пересекается по времени с одной из существующих");
+            return -4;
+        }
+        if (!prioritizedTasks.add(task)) {
+            System.out.println("Не удалось добавить в список со временем.");
+            return -3;
+        }
         switch (task) {
             case null -> {
                 return -1;
@@ -47,6 +61,15 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public <T extends Task> void updateTask(T task) {
+        if (!checkOverlapsInTime(task)) {
+            System.out.println("Новая задача пересекается по времени с одной из существующих");
+            return;
+        }
+        prioritizedTasks.remove(task);
+        if (!prioritizedTasks.add(task)) {
+            System.out.println("Не удалось добавить в список со временем.");
+            return;
+        }
         switch (task) {
             case null -> {
                 return;
@@ -84,6 +107,7 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public void removeByID(int id) {
+        prioritizedTasks.remove(getTaskByID(id));
         taskList.remove(id);
         epicTaskList.remove(id);
         if (subTaskList.containsKey(id)) {
@@ -124,6 +148,9 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public void deleteTasks() {
         taskList.clear();
+        prioritizedTasks = prioritizedTasks.stream()
+                .filter(task -> task.getClass() != Task.class)
+                .collect(Collectors.toSet());
     }
 
     @Override
@@ -132,12 +159,19 @@ public class InMemoryTaskManager implements TaskManager {
             epic.cleanSubtaskIds();
         }
         subTaskList.clear();
+        prioritizedTasks = prioritizedTasks.stream()
+                .filter(task -> task.getClass() != SubTask.class)
+                .collect(Collectors.toSet());
     }
 
     @Override
     public void deleteEpics() {
         subTaskList.clear();
         epicTaskList.clear();
+        prioritizedTasks = prioritizedTasks.stream()
+                .filter(task -> task.getClass() != EpicTask.class)
+                .filter(task -> task.getClass() != SubTask.class)
+                .collect(Collectors.toSet());
     }
 
     @Override
@@ -163,5 +197,27 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public List<Task> getTaskHistory() {
         return historyManager.getHistory();
+    }
+
+    public List<Task> getPrioritizedTasks() {
+        return prioritizedTasks.stream().toList();
+    }
+
+    public static boolean isOverlapsInTime (Task task1, Task task2) {
+        if (task1.getStartTime().isBefore(task2.getStartTime())
+                && task1.getEndTime().isBefore(task2.getStartTime())) {
+            return false;
+        }
+        if (task1.getStartTime().isAfter(task2.getEndTime())
+                && task1.getEndTime().isAfter(task2.getEndTime())) {
+            return false;
+        }
+        return true;
+    }
+
+    public boolean checkOverlapsInTime (Task task) {
+        return prioritizedTasks.stream()
+                .filter(curTask -> isOverlapsInTime(curTask, task))
+                .toList().isEmpty();
     }
 }

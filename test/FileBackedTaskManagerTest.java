@@ -26,7 +26,7 @@ public class FileBackedTaskManagerTest {
                 "Task name",
                 "Test addNewTask description",
                 TaskStatus.NEW,
-                LocalDateTime.of(2024, 12, 24, 10, 00),
+                LocalDateTime.of(2024, 12, 24, 9, 00),
                 Duration.ofMinutes(1));
         EpicTask epicTask = new EpicTask("Epik task name", "Epik task description");
         SubTask subTask = new SubTask(

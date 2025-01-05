@@ -10,6 +10,7 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 public class TaskManagerTest {
     protected static TaskManager taskManager;
@@ -40,7 +41,7 @@ public class TaskManagerTest {
     void safeTaskAllTypes () {
         Task task = new Task("Task name", "Test addNewTask description", TaskStatus.NEW, LocalDateTime.now().plusHours(1), Duration.ofMinutes(10));
         EpicTask epicTask = new  EpicTask("Epik task name", "Epik task description");
-        SubTask subTask = new SubTask("subtask name", "subtask description", epicTask, LocalDateTime.now().plusHours(1), Duration.ofMinutes(10));
+        SubTask subTask = new SubTask("subtask name", "subtask description", epicTask, LocalDateTime.now().plusHours(2), Duration.ofMinutes(10));
 
         int taskId = taskManager.addTask(task);
         int epicTaskId = taskManager.addTask(epicTask);
@@ -53,7 +54,7 @@ public class TaskManagerTest {
 
     @Test
     void methodGetAllTaskList() {
-        Task task = new Task("Task name", "Test addNewTask description", TaskStatus.NEW, LocalDateTime.now(), Duration.ofMinutes(10));
+        Task task = new Task("Task name", "Test addNewTask description", TaskStatus.NEW, LocalDateTime.now().plusHours(2), Duration.ofMinutes(10));
         EpicTask epicTask = new  EpicTask("Epik task name", "Epik task description");
         SubTask subTask = new SubTask("subtask name", "subtask description", epicTask, LocalDateTime.now().plusHours(1), Duration.ofMinutes(10));
 
@@ -99,17 +100,17 @@ public class TaskManagerTest {
     void methodUpdateTask () {
         Task task = new Task("Task name", "Test addNewTask description", TaskStatus.NEW, LocalDateTime.now().plusHours(1), Duration.ofMinutes(10));
         EpicTask epicTask = new  EpicTask("Epik task name", "Epik task description");
-        SubTask subTask = new SubTask("subtask name", "subtask description", epicTask, LocalDateTime.now().plusHours(1), Duration.ofMinutes(10));
+        SubTask subTask = new SubTask("subtask name", "subtask description", epicTask, LocalDateTime.now().plusHours(2), Duration.ofMinutes(10));
 
         int taskId = taskManager.addTask(task);
         int epicTaskId = taskManager.addTask(epicTask);
         int subTaskId = taskManager.addTask(subTask);
 
-        task = new Task("NEW Task name", "Test addNewTask description", TaskStatus.NEW, LocalDateTime.now(), Duration.ofMinutes(10));
+        task = new Task("NEW Task name", "Test addNewTask description", TaskStatus.NEW, LocalDateTime.now().plusHours(3), Duration.ofMinutes(10));
         task.setId(taskId);
         epicTask = new  EpicTask("NEW Epik task name", "Epik task description");
         epicTask.setId(epicTaskId);
-        subTask = new SubTask("NEW subtask name", "subtask description", epicTask, LocalDateTime.now(), Duration.ofMinutes(10));
+        subTask = new SubTask("NEW subtask name", "subtask description", epicTask, LocalDateTime.now().plusHours(4), Duration.ofMinutes(10));
         subTask.setId(subTaskId);
 
         taskManager.updateTask(task);
@@ -124,9 +125,9 @@ public class TaskManagerTest {
 
     @Test
     void methodRemoveByID () {
-        Task task = new Task("Task name", "Test addNewTask description", TaskStatus.NEW, LocalDateTime.now(), Duration.ofMinutes(10));
+        Task task = new Task("Task name", "Test addNewTask description", TaskStatus.NEW, LocalDateTime.now().plusHours(1), Duration.ofMinutes(10));
         EpicTask epicTask = new  EpicTask("Epik task name", "Epik task description");
-        SubTask subTask = new SubTask("subtask name", "subtask description", epicTask, LocalDateTime.now(), Duration.ofMinutes(10));
+        SubTask subTask = new SubTask("subtask name", "subtask description", epicTask, LocalDateTime.now().plusHours(2), Duration.ofMinutes(10));
 
         int taskId = taskManager.addTask(task);
         int epicTaskId = taskManager.addTask(epicTask);
@@ -142,7 +143,7 @@ public class TaskManagerTest {
     @Test
     void getSubtaskInEpictask () {
         EpicTask epicTask = new  EpicTask("Epik task name", "Epik task description");
-        SubTask subTask = new SubTask("subtask name", "subtask description", epicTask, LocalDateTime.now(), Duration.ofMinutes(10));
+        SubTask subTask = new SubTask("subtask name", "subtask description", epicTask, LocalDateTime.now().plusHours(1), Duration.ofMinutes(10));
 
         int epicTaskId = taskManager.addTask(epicTask);
         taskManager.addTask(subTask);
@@ -157,10 +158,10 @@ public class TaskManagerTest {
 
     @Test
     void checkChangeStatus () {
-        Task task = new Task("Task name", "Test addNewTask description", TaskStatus.NEW, LocalDateTime.now(), Duration.ofMinutes(10));
+        Task task = new Task("Task name", "Test addNewTask description", TaskStatus.NEW, LocalDateTime.now().plusHours(1), Duration.ofMinutes(10));
         EpicTask epicTask = new  EpicTask("Epik task name", "Epik task description");
-        SubTask subTask = new SubTask("subtask name", "subtask description", epicTask, LocalDateTime.now(), Duration.ofMinutes(10));
-        SubTask subTaskNew = new SubTask("new subtask name", "new subtask description", epicTask, LocalDateTime.now(), Duration.ofMinutes(10));
+        SubTask subTask = new SubTask("subtask name", "subtask description", epicTask, LocalDateTime.now().plusHours(2), Duration.ofMinutes(10));
+        SubTask subTaskNew = new SubTask("new subtask name", "new subtask description", epicTask, LocalDateTime.now().plusHours(3), Duration.ofMinutes(10));
 
         int taskId = taskManager.addTask(task);
         int epicTaskId = taskManager.addTask(epicTask);
@@ -184,5 +185,47 @@ public class TaskManagerTest {
         Assertions.assertEquals(TaskStatus.IN_PROGRESS, taskManager.getTaskByID(epicTaskId).getStatus(), "Ошибки в работе со статусами");
         taskManager.setTaskStatusByID(subTaskNewId, TaskStatus.DONE);
         Assertions.assertEquals(TaskStatus.DONE, taskManager.getTaskByID(epicTaskId).getStatus(), "Ошибки в работе со статусами");
+    }
+
+    @Test
+    void checkDurationInEpicTask () {
+        LocalDateTime nowTime = LocalDateTime.now().plusHours(1);
+        EpicTask epic = new EpicTask(
+                "nameepic",
+                "descepic"
+        );
+        SubTask sub1 = new SubTask(
+                "subname1",
+                "subdesc1",
+                epic,
+                nowTime,
+                Duration.ofMinutes(10)
+        );
+        SubTask sub2 = new SubTask(
+                "subname2",
+                "subdesc2",
+                epic,
+                nowTime.plus(Duration.ofMinutes(11)),
+                Duration.ofMinutes(10)
+        );
+
+        int id = taskManager.addTask(epic);
+        taskManager.addTask(sub1);
+        taskManager.addTask(sub2);
+
+        Assertions.assertEquals(taskManager.getTaskByID(id).getDuration(), Duration.ofMinutes(21));
+    }
+
+    @Test
+    void checkFGetPrioritizedTasks() {
+        TaskManager tm = Managers.getDefault();
+        Random random = new Random();
+        int countData = 10;
+        for (int i = 0; i < countData; i++) {
+            Task curTask = new Task("Name task " + i + ".", "Description task", LocalDateTime.now().plusHours(random.nextInt(countData)), Duration.ofMinutes(10));
+            tm.addTask(curTask);
+        }
+
+        System.out.println(tm.getPrioritizedTasks());
     }
 }
