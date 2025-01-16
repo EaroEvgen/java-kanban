@@ -26,20 +26,20 @@ public class FileBackedTaskManagerTest {
                 "Task name",
                 "Test addNewTask description",
                 TaskStatus.NEW,
-                LocalDateTime.of(2024, 12, 24, 9, 00),
+                LocalDateTime.of(2024, 12, 24, 9, 0),
                 Duration.ofMinutes(1));
         EpicTask epicTask = new EpicTask("Epik task name", "Epik task description");
         SubTask subTask = new SubTask(
                 "subtask name",
                 "subtask description",
                 epicTask,
-                LocalDateTime.of(2024, 12, 24, 10, 00),
+                LocalDateTime.of(2024, 12, 24, 10, 0),
                 Duration.ofMinutes(10));
         SubTask subTask1 = new SubTask(
                 "subtask1 name",
                 "subtask1 description",
                 epicTask,
-                LocalDateTime.of(2024, 12, 24, 11, 00),
+                LocalDateTime.of(2024, 12, 24, 11, 0),
                 Duration.ofMinutes(10));
 
         taskManager.addTask(task);

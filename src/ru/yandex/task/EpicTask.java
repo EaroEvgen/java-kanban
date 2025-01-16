@@ -83,7 +83,7 @@ public class EpicTask extends Task {
                 return 1;
             }
         });
-        if (subTasks.size() <= 0) {
+        if (subTasks.isEmpty()) {
             super.setStartTime(LocalDateTime.now());
             super.setDuration(Duration.ZERO);
             return;
@@ -94,8 +94,8 @@ public class EpicTask extends Task {
 
     @Override
     public LocalDateTime getEndTime() {
-        if (subTasks.size() <= 0) {
-            return LocalDateTime.now();
+        if (subTasks.isEmpty()) {
+            return super.getEndTime();
         }
         return subTasks.getLast().getEndTime();
     }
