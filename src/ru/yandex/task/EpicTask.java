@@ -14,7 +14,9 @@ public class EpicTask extends Task {
 
     @Override
     public void setStatus(TaskStatus status) {
-        System.out.println("Статус эпической задачи меняется автоматически вместе с подзадачами.");
+        //System.out.println("Статус эпической задачи меняется автоматически вместе с подзадачами.");
+        //Выходит тут обязательно переопределить метод с пустым телом? Ведь он есть у родителя. И то
+        //что там происходит нам не подходит.
     }
 
     public void addSubTask(SubTask subTask) {
@@ -89,7 +91,12 @@ public class EpicTask extends Task {
             return;
         }
         super.setStartTime(subTasks.getFirst().getStartTime());
-        super.setDuration(Duration.between(getStartTime(), subTasks.getLast().getEndTime()));
+
+        Duration resultDuration = Duration.ofMinutes(0);
+        for (SubTask task : subTasks) {
+            resultDuration = resultDuration.plus(task.getDuration());
+        }
+        super.setDuration(resultDuration);
     }
 
     @Override

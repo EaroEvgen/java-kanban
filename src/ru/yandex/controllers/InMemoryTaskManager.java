@@ -1,5 +1,6 @@
 package ru.yandex.controllers;
 
+import ru.yandex.exceptions.ManagerSaveException;
 import ru.yandex.task.*;
 
 import java.util.*;
@@ -28,35 +29,38 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public <T extends Task> int addTask(T task) {
+        try {
+            return addTaskException(task);
+        } catch (ManagerSaveException e) {
+            //System.out.println(e.getMessage());
+            return -1;
+        }
+    }
+
+    public <T extends Task> int addTaskException(T task) throws ManagerSaveException {
         if (!checkOverlapsInTime(task)) {
-            System.out.println("Новая задача пересекается по времени с одной из существующих");
-            return -4;
+            throw new ManagerSaveException("Новая задача пересекается по времени с одной из существующих");
         }
         switch (task) {
-            case null -> {
-                return -1;
-            }
             case EpicTask epicTask -> {
                 epicTaskList.put(task.getId(), epicTask);
                 return task.getId();
             }
             case SubTask subTask -> {
                 if (subTask.getEpicTask() == null) {
-                    return -2;
+                    throw new ManagerSaveException("Новая подзадача имеет пустой поле эпической задачи");
                 }
                 subTaskList.put(task.getId(), subTask);
                 subTask.getEpicTask().addSubTask(subTask);
                 if (!prioritizedTasks.add(subTask)) {
-                    System.out.println("Не удалось добавить в список со временем.");
-                    return -3;
+                    throw new ManagerSaveException("Новая подзадача пересекается по времени с одной из существующих");
                 }
                 return task.getId();
             }
             default -> {
                 taskList.put(task.getId(), task);
                 if (!prioritizedTasks.add(task)) {
-                    System.out.println("Не удалось добавить в список со временем.");
-                    return -3;
+                    throw new ManagerSaveException("Не удалось добавить в список со временем.");
                 }
                 return task.getId();
             }
@@ -172,7 +176,6 @@ public class InMemoryTaskManager implements TaskManager {
         subTaskList.clear();
         epicTaskList.clear();
         prioritizedTasks = prioritizedTasks.stream()
-                .filter(task -> task.getClass() != EpicTask.class)
                 .filter(task -> task.getClass() != SubTask.class)
                 .collect(Collectors.toSet());
     }
@@ -207,12 +210,10 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     public static boolean isOverlapsInTime(Task task1, Task task2) {
-        if (task1.getStartTime().isBefore(task2.getStartTime())
-                && task1.getEndTime().isBefore(task2.getStartTime())) {
+        if (task1.getEndTime().isBefore(task2.getStartTime())) {
             return false;
         }
-        if (task1.getStartTime().isAfter(task2.getEndTime())
-                && task1.getEndTime().isAfter(task2.getEndTime())) {
+        if (task1.getStartTime().isAfter(task2.getEndTime())) {
             return false;
         }
         return true;

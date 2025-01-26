@@ -1,5 +1,4 @@
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Assertions;
 
@@ -213,7 +212,7 @@ public class TaskManagerTest {
         taskManager.addTask(sub1);
         taskManager.addTask(sub2);
 
-        Assertions.assertEquals(taskManager.getTaskByID(id).getDuration(), Duration.ofMinutes(21));
+        Assertions.assertEquals(taskManager.getTaskByID(id).getDuration(), Duration.ofMinutes(20));
     }
 
     @Test
