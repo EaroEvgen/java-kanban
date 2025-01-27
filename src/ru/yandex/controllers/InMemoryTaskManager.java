@@ -1,16 +1,17 @@
 package ru.yandex.controllers;
 
+import ru.yandex.exceptions.ManagerSaveException;
 import ru.yandex.task.*;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class InMemoryTaskManager implements TaskManager {
     private final HashMap<Integer, Task> taskList;
     private final HashMap<Integer, EpicTask> epicTaskList;
     private final HashMap<Integer, SubTask> subTaskList;
     private final HistoryManager historyManager;
+    private Set<Task> prioritizedTasks;
 
 
     public InMemoryTaskManager() {
@@ -18,28 +19,49 @@ public class InMemoryTaskManager implements TaskManager {
         this.epicTaskList = new HashMap<>();
         this.subTaskList = new HashMap<>();
         this.historyManager = Managers.getDefaultHistory();
+        this.prioritizedTasks = new TreeSet<>((Task task1, Task task2) -> {
+            if (task1.getStartTime().isBefore(task2.getStartTime())) {
+                return -1;
+            }
+            return 1;
+        });
     }
 
     @Override
     public <T extends Task> int addTask(T task) {
+        try {
+            return addTaskException(task);
+        } catch (ManagerSaveException e) {
+            //System.out.println(e.getMessage());
+            return -1;
+        }
+    }
+
+    public <T extends Task> int addTaskException(T task) throws ManagerSaveException {
+        if (!checkOverlapsInTime(task)) {
+            throw new ManagerSaveException("Новая задача пересекается по времени с одной из существующих");
+        }
         switch (task) {
-            case null -> {
-                return -1;
-            }
             case EpicTask epicTask -> {
                 epicTaskList.put(task.getId(), epicTask);
                 return task.getId();
             }
             case SubTask subTask -> {
                 if (subTask.getEpicTask() == null) {
-                    return -2;
+                    throw new ManagerSaveException("Новая подзадача имеет пустой поле эпической задачи");
                 }
                 subTaskList.put(task.getId(), subTask);
                 subTask.getEpicTask().addSubTask(subTask);
+                if (!prioritizedTasks.add(subTask)) {
+                    throw new ManagerSaveException("Новая подзадача пересекается по времени с одной из существующих");
+                }
                 return task.getId();
             }
             default -> {
                 taskList.put(task.getId(), task);
+                if (!prioritizedTasks.add(task)) {
+                    throw new ManagerSaveException("Не удалось добавить в список со временем.");
+                }
                 return task.getId();
             }
         }
@@ -47,9 +69,12 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public <T extends Task> void updateTask(T task) {
+        if (!checkOverlapsInTime(task)) {
+            System.out.println("Новая задача пересекается по времени с одной из существующих");
+            return;
+        }
         switch (task) {
             case null -> {
-                return;
             }
             case EpicTask epicTask -> {
                 if (!epicTaskList.containsKey(task.getId())) {
@@ -57,7 +82,6 @@ public class InMemoryTaskManager implements TaskManager {
                 }
                 epicTaskList.remove(task.getId());
                 epicTaskList.put(task.getId(), epicTask);
-                return;
             }
             case SubTask subTask -> {
                 if (!subTaskList.containsKey(task.getId())) {
@@ -69,7 +93,10 @@ public class InMemoryTaskManager implements TaskManager {
                 currentEpicTask.addSubTask(subTask);
                 subTaskList.remove(subTask.getId());
                 subTaskList.put(subTask.getId(), subTask);
-                return;
+                prioritizedTasks.remove(subTask);
+                if (!prioritizedTasks.add(subTask)) {
+                    System.out.println("Не удалось добавить в список со временем.");
+                }
             }
             default -> {
                 if (!taskList.containsKey(task.getId())) {
@@ -77,13 +104,17 @@ public class InMemoryTaskManager implements TaskManager {
                 }
                 taskList.remove(task.getId());
                 taskList.put(task.getId(), task);
-                return;
+                prioritizedTasks.remove(task);
+                if (!prioritizedTasks.add(task)) {
+                    System.out.println("Не удалось добавить в список со временем.");
+                }
             }
         }
     }
 
     @Override
     public void removeByID(int id) {
+        prioritizedTasks.remove(getTaskByID(id));
         taskList.remove(id);
         epicTaskList.remove(id);
         if (subTaskList.containsKey(id)) {
@@ -124,6 +155,9 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public void deleteTasks() {
         taskList.clear();
+        prioritizedTasks = prioritizedTasks.stream()
+                .filter(task -> task.getClass() != Task.class)
+                .collect(Collectors.toSet());
     }
 
     @Override
@@ -132,12 +166,18 @@ public class InMemoryTaskManager implements TaskManager {
             epic.cleanSubtaskIds();
         }
         subTaskList.clear();
+        prioritizedTasks = prioritizedTasks.stream()
+                .filter(task -> task.getClass() != SubTask.class)
+                .collect(Collectors.toSet());
     }
 
     @Override
     public void deleteEpics() {
         subTaskList.clear();
         epicTaskList.clear();
+        prioritizedTasks = prioritizedTasks.stream()
+                .filter(task -> task.getClass() != SubTask.class)
+                .collect(Collectors.toSet());
     }
 
     @Override
@@ -163,5 +203,25 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public List<Task> getTaskHistory() {
         return historyManager.getHistory();
+    }
+
+    public List<Task> getPrioritizedTasks() {
+        return prioritizedTasks.stream().toList();
+    }
+
+    public static boolean isOverlapsInTime(Task task1, Task task2) {
+        if (task1.getEndTime().isBefore(task2.getStartTime())) {
+            return false;
+        }
+        if (task1.getStartTime().isAfter(task2.getEndTime())) {
+            return false;
+        }
+        return true;
+    }
+
+    public boolean checkOverlapsInTime(Task task) {
+        return prioritizedTasks.stream()
+                .filter(curTask -> isOverlapsInTime(curTask, task))
+                .toList().isEmpty();
     }
 }

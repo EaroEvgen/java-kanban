@@ -1,18 +1,22 @@
 package ru.yandex.task;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 
 public class EpicTask extends Task {
     private final ArrayList<SubTask> subTasks;
 
     public EpicTask(String name, String description) {
-        super(name, description);
+        super(name, description, LocalDateTime.now(), Duration.ZERO);
         subTasks = new ArrayList<>();
     }
 
     @Override
     public void setStatus(TaskStatus status) {
-        System.out.println("Статус эпической задачи меняется автоматически вместе с подзадачами.");
+        //System.out.println("Статус эпической задачи меняется автоматически вместе с подзадачами.");
+        //Выходит тут обязательно переопределить метод с пустым телом? Ведь он есть у родителя. И то
+        //что там происходит нам не подходит.
     }
 
     public void addSubTask(SubTask subTask) {
@@ -24,6 +28,7 @@ public class EpicTask extends Task {
             subTasks.add(subTask);
         }
         updateStatus();
+        updateTime();
     }
 
     public void removeSubTask(SubTask subTask) {
@@ -33,6 +38,7 @@ public class EpicTask extends Task {
         }
         subTasks.remove(subTask);
         updateStatus();
+        updateTime();
     }
 
     public ArrayList<SubTask> getSubTaskList() {
@@ -69,5 +75,35 @@ public class EpicTask extends Task {
     public void cleanSubtaskIds() {
         subTasks.clear();
         updateStatus();
+    }
+
+    public void updateTime() {
+        subTasks.sort((SubTask sub1, SubTask sub2) -> {
+            if (sub1.getStartTime().isBefore(sub2.getStartTime())) {
+                return -1;
+            } else {
+                return 1;
+            }
+        });
+        if (subTasks.isEmpty()) {
+            super.setStartTime(LocalDateTime.now());
+            super.setDuration(Duration.ZERO);
+            return;
+        }
+        super.setStartTime(subTasks.getFirst().getStartTime());
+
+        Duration resultDuration = Duration.ofMinutes(0);
+        for (SubTask task : subTasks) {
+            resultDuration = resultDuration.plus(task.getDuration());
+        }
+        super.setDuration(resultDuration);
+    }
+
+    @Override
+    public LocalDateTime getEndTime() {
+        if (subTasks.isEmpty()) {
+            return super.getEndTime();
+        }
+        return subTasks.getLast().getEndTime();
     }
 }
