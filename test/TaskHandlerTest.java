@@ -27,7 +27,6 @@ import java.util.List;
 public class TaskHandlerTest {
 
     protected static HttpTaskServer taskServer;
-    private static Gson gson;
 
     class SubtitleListTypeToken extends TypeToken<List<Task>> {
 
@@ -35,7 +34,6 @@ public class TaskHandlerTest {
 
     @BeforeEach
     public void initTaskServer() {
-        gson = new GsonBuilder().create();
         taskServer = new HttpTaskServer();
         taskServer.start();
     }
@@ -56,10 +54,9 @@ public class TaskHandlerTest {
 
         List<Task> startTaskList = new ArrayList<>();
         startTaskList.add(task);
-        startTaskList.add(epicTask);
-        startTaskList.add(subTask);
 
         TaskManager taskManager = taskServer.getTaskManager();
+        Gson gson = taskServer.getGson();
         taskManager.addTask(task);
         taskManager.addTask(epicTask);
         taskManager.addTask(subTask);
@@ -80,11 +77,55 @@ public class TaskHandlerTest {
         HttpResponse<String> response = httpClient.send(request, handler);
         Assertions.assertEquals(200, response.statusCode());
 
-        List<Task> responseTaskList = gson.fromJson(response.body(), new SubtitleListTypeToken().getType());
+        String jsonBody = response.body();
+        List<Task> responseTaskList = gson.fromJson(jsonBody, new SubtitleListTypeToken().getType());
 
 
         Assertions.assertTrue(startTaskList.containsAll(responseTaskList)
                 && responseTaskList.containsAll(startTaskList));
+    }
+
+    @Test
+    void checkEndpointGET_TASK() throws IOException, InterruptedException {
+        Task task = new Task("Task name", "Test addNewTask description", TaskStatus.NEW, LocalDateTime.now().plusHours(1), Duration.ofMinutes(10));
+        EpicTask epicTask = new  EpicTask("Epik task name", "Epik task description");
+        SubTask subTask = new SubTask("subtask name", "subtask description", epicTask, LocalDateTime.now().plusHours(2), Duration.ofMinutes(10));
+        int taskId = task.getId();
+        int epicTaskId = epicTask.getId();
+        int subTaskId = subTask.getId();
+
+        List<Task> startTaskList = new ArrayList<>();
+        startTaskList.add(task);
+        startTaskList.add(epicTask);
+        startTaskList.add(subTask);
+
+        TaskManager taskManager = taskServer.getTaskManager();
+        Gson gson = taskServer.getGson();
+        taskManager.addTask(task);
+        taskManager.addTask(epicTask);
+        taskManager.addTask(subTask);
+
+        HttpClient httpClient = HttpClient.newHttpClient();
+        URI uri = URI.create("http://localhost:8080/tasks/" + taskId) ;
+
+        // создайте объект, описывающий HTTP-запрос
+        HttpResponse.BodyHandler<String> handler = HttpResponse.BodyHandlers.ofString();
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(uri)
+                .version(HttpClient.Version.HTTP_1_1)
+                .header("Content-type", "application/json")
+                .GET()
+                .build();
+
+        // отправьте запрос
+        HttpResponse<String> response = httpClient.send(request, handler);
+        Assertions.assertEquals(200, response.statusCode());
+
+        String jsonBody = response.body();
+        Task responseTask = gson.fromJson(jsonBody, Task.class);
+
+
+        Assertions.assertEquals(responseTask, task);
     }
 
 //    @Test

@@ -11,6 +11,15 @@ public class Task {
     private Duration duration;
     private LocalDateTime startTime;
 
+    public Task() {
+        this.id = CounterID.getNextID();
+        this.name = "";
+        this.description = "";
+        this.status = TaskStatus.NEW;
+        this.startTime = LocalDateTime.now();
+        this.duration = Duration.ZERO;
+    }
+
     public Task(String name, String description, LocalDateTime startTime, Duration duration) {
         this.id = CounterID.getNextID();
         this.name = name;
