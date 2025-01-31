@@ -37,7 +37,7 @@ public class HttpTaskServer {
                 .registerTypeAdapter(LocalDateTime.class, new LocalDateTimeTypeAdapter())
                 .registerTypeAdapter(Duration.class, new DurationTypeAdapter())
                 .create();
-        Task task = new Task("Task name", "Test addNewTask description", TaskStatus.NEW, LocalDateTime.now().plusHours(1), Duration.ofMinutes(10));
+        Task task = new Task("Task name", "Task description", TaskStatus.NEW, LocalDateTime.now().plusHours(1), Duration.ofMinutes(10));
         EpicTask epicTask = new EpicTask("Epik task name", "Epik task description");
         SubTask subTask = new SubTask("subtask name", "subtask description", epicTask, LocalDateTime.now().plusHours(2), Duration.ofMinutes(10));
 
@@ -72,7 +72,7 @@ public class HttpTaskServer {
         try {
             httpServer = HttpServer.create(new InetSocketAddress(PORT), 0);
             httpServer.createContext("/tasks", new TasksHandler(taskManager, gson));
-//        httpServer.createContext("/subtasks", new SubtasksHandler(taskManager));
+        httpServer.createContext("/subtasks", new SubtasksHandler(taskManager, gson));
 //        httpServer.createContext("/epics", new EpicsHandler(taskManager));
 //        httpServer.createContext("/history", new HistoryHandler(taskManager));
 //        httpServer.createContext("/prioritized", new PrioritizedHandler(taskManager));
@@ -98,7 +98,7 @@ class SubtitleListTypeToken extends TypeToken<List<Task>> {
 }
 
 class LocalDateTimeTypeAdapter extends TypeAdapter<LocalDateTime> {
-    private final DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss.SSS");
+    private final DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss.SSSSSSSSS");
 
     @Override
     public void write(JsonWriter jsonWriter, final LocalDateTime localTime) throws IOException {

@@ -69,52 +69,19 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public <T extends Task> void updateTask(T task) {
+        Task oldTask = getTaskByID(task.getId());
+        removeByID(task.getId());
         if (!checkOverlapsInTime(task)) {
             System.out.println("Новая задача пересекается по времени с одной из существующих");
+            addTask(oldTask);
             return;
         }
-        switch (task) {
-            case null -> {
-            }
-            case EpicTask epicTask -> {
-                if (!epicTaskList.containsKey(task.getId())) {
-                    return;
-                }
-                epicTaskList.remove(task.getId());
-                epicTaskList.put(task.getId(), epicTask);
-            }
-            case SubTask subTask -> {
-                if (!subTaskList.containsKey(task.getId())) {
-                    return;
-                }
-                SubTask currentSubTask = subTaskList.get(subTask.getId());
-                EpicTask currentEpicTask = currentSubTask.getEpicTask();
-                currentEpicTask.removeSubTask(currentSubTask);
-                currentEpicTask.addSubTask(subTask);
-                subTaskList.remove(subTask.getId());
-                subTaskList.put(subTask.getId(), subTask);
-                prioritizedTasks.remove(subTask);
-                if (!prioritizedTasks.add(subTask)) {
-                    System.out.println("Не удалось добавить в список со временем.");
-                }
-            }
-            default -> {
-                if (!taskList.containsKey(task.getId())) {
-                    return;
-                }
-                taskList.remove(task.getId());
-                taskList.put(task.getId(), task);
-                prioritizedTasks.remove(task);
-                if (!prioritizedTasks.add(task)) {
-                    System.out.println("Не удалось добавить в список со временем.");
-                }
-            }
-        }
+        addTask(task);
     }
 
     @Override
     public void removeByID(int id) {
-        prioritizedTasks.remove(getTaskByID(id));
+        prioritizedTasks.removeIf(task -> task.getId() == id);
         taskList.remove(id);
         epicTaskList.remove(id);
         if (subTaskList.containsKey(id)) {

@@ -6,6 +6,7 @@ import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import ru.yandex.controllers.TaskManager;
 import ru.yandex.exceptions.ManagerSaveException;
+import ru.yandex.task.SubTask;
 import ru.yandex.task.Task;
 
 import java.io.IOException;
@@ -17,14 +18,14 @@ import java.util.List;
 import java.util.regex.Pattern;
 import java.util.Optional;
 
-public class TasksHandler implements HttpHandler {
+public class SubtasksHandler implements HttpHandler {
 
     private static final Charset DEFAULT_CHARSET = StandardCharsets.UTF_8;
 
     private final TaskManager taskManager;
     private final Gson gson;
 
-    public TasksHandler(TaskManager taskManager, Gson gson) {
+    public SubtasksHandler(TaskManager taskManager, Gson gson) {
         this.taskManager = taskManager;
         this.gson = gson;
     }
@@ -34,24 +35,24 @@ public class TasksHandler implements HttpHandler {
         Endpoint endpoint = getEndpoint(exchange.getRequestURI().getPath(), exchange.getRequestMethod());
 
         switch (endpoint) {
-            case GET_TASKS: {
-                handleGetTasks(exchange);
+            case GET_SUB_TASKS: {
+                handleGetSubTasks(exchange);
                 break;
             }
-            case GET_TASK: {
-                handleGetTaskByID(exchange);
+            case GET_SUB_TASK: {
+                handleGetSubTaskByID(exchange);
                 break;
             }
             case POST_CREATE: {
-                handleCreateTask(exchange);
+                handleCreateSubTask(exchange);
                 break;
             }
             case POST_UPDATE: {
-                handleUpdateTask(exchange);
+                handleUpdateSubTask(exchange);
                 break;
             }
-            case DELETE_TASK: {
-                handleDeleteTask(exchange);
+            case DELETE_SUB_TASK: {
+                handleDeleteSubTask(exchange);
                 break;
             }
             default:
@@ -59,7 +60,7 @@ public class TasksHandler implements HttpHandler {
         }
     }
 
-    private void handleDeleteTask(HttpExchange exchange) throws IOException {
+    private void handleDeleteSubTask(HttpExchange exchange) throws IOException {
         Optional<Integer> taskIdOptional = getTaskId(exchange);
         if (taskIdOptional.isEmpty()) {
             writeResponse(exchange, "Некорректный идентификатор задачи", 404);
@@ -74,7 +75,7 @@ public class TasksHandler implements HttpHandler {
         writeResponse(exchange, "Задача с ID: " + taskId + " удалена.", 200);
     }
 
-    private void handleUpdateTask(HttpExchange exchange) throws IOException {
+    private void handleUpdateSubTask(HttpExchange exchange) throws IOException {
         Optional<Integer> taskIdOptional = getTaskId(exchange);
         if (taskIdOptional.isEmpty()) {
             writeResponse(exchange, "Некорректный идентификатор задачи", 404);
@@ -85,38 +86,38 @@ public class TasksHandler implements HttpHandler {
             writeResponse(exchange, "Такой задачи нет", 404);
             return;
         }
-        Optional<Task> curTaskOptional = getTaskByJson(exchange);
-        if (curTaskOptional.isEmpty()) {
+        Optional<SubTask> curSubTaskOptional = getSubTaskByJson(exchange);
+        if (curSubTaskOptional.isEmpty()) {
             writeResponse(exchange, "В теле некорректно заполнена задача", 404);
             return;
         }
-        Task curTask = curTaskOptional.get();
-        curTask.setId(taskId);
-        taskManager.updateTask(curTask);
+        SubTask curSubTask = curSubTaskOptional.get();
+        curSubTask.setId(taskId);
+        taskManager.updateTask(curSubTask);
         writeResponse(exchange, "Задача с ID: " + taskId + " обновлена.", 200);
     }
 
-    private void handleCreateTask(HttpExchange exchange) throws IOException {
-        Optional<Task> curTaskOptional = getTaskByJson(exchange);
-        if (curTaskOptional.isEmpty()) {
+    private void handleCreateSubTask(HttpExchange exchange) throws IOException {
+        Optional<SubTask> curSubTaskOptional = getSubTaskByJson(exchange);
+        if (curSubTaskOptional.isEmpty()) {
             writeResponse(exchange, "В теле некорректно заполнена задача", 404);
             return;
         }
-        Task curTask = curTaskOptional.get();
-        if (taskManager.getTaskByID(curTask.getId()) != null) {
-            writeResponse(exchange, "Задача с ID: " + curTask.getId() + " уже существует.", 400);
+        SubTask curSubTask = curSubTaskOptional.get();
+        if (taskManager.getTaskByID(curSubTask.getId()) != null) {
+            writeResponse(exchange, "Задача с ID: " + curSubTask.getId() + " уже существует.", 400);
             return;
         }
         try {
-            taskManager.addTaskException(curTask);
+            taskManager.addTaskException(curSubTask);
         } catch (ManagerSaveException e) {
             writeResponse(exchange, "Не удалось добавить новую задачу. \n" + e.getMessage(), 400);
             return;
         }
-        writeResponse(exchange, "Задача с ID: " + curTask.getId() + " создана.", 200);
+        writeResponse(exchange, "Задача с ID: " + curSubTask.getId() + " создана.", 200);
     }
 
-    private void handleGetTaskByID(HttpExchange exchange) throws IOException {
+    private void handleGetSubTaskByID(HttpExchange exchange) throws IOException {
         Optional<Integer> taskIdOptional = getTaskId(exchange);
         if (taskIdOptional.isEmpty()) {
             writeResponse(exchange, "Некорректный идентификатор задачи", 404);
@@ -124,17 +125,18 @@ public class TasksHandler implements HttpHandler {
         }
         int taskId = taskIdOptional.get();
         Task curTask = taskManager.getTaskByID(taskId);
-        if (curTask == null) {
+        if (curTask.getClass() != SubTask.class) {
             writeResponse(exchange, "Такой задачи нет", 404);
             return;
         }
+
         Headers requestHeaders = exchange.getResponseHeaders();
         requestHeaders.add("Content-Type", "application/json");
         writeResponse(exchange, gson.toJson(curTask), 200);
     }
 
-    private void handleGetTasks(HttpExchange exchange) throws IOException {
-        List<Task> curTaskList = taskManager.getTaskList();
+    private void handleGetSubTasks(HttpExchange exchange) throws IOException {
+        List<SubTask> curTaskList = taskManager.getSubTaskList();
         Headers requestHeaders = exchange.getResponseHeaders();
         requestHeaders.add("Content-Type", "application/json");
         writeResponse(exchange, gson.toJson(curTaskList), 200);
@@ -149,22 +151,22 @@ public class TasksHandler implements HttpHandler {
         }
     }
 
-    private Optional<Task> getTaskByJson(HttpExchange exchange) throws IOException {
+    private Optional<SubTask> getSubTaskByJson(HttpExchange exchange) throws IOException {
         // получаем входящий поток байтов
         InputStream inputStream = exchange.getRequestBody();
         // дожидаемся получения всех данных в виде массива байтов и конвертируем их в строку
         String body = new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
-        Task curTask;
+        SubTask curSubTask;
         try {
-            curTask = gson.fromJson(body, Task.class);
+            curSubTask = gson.fromJson(body, SubTask.class);
         } catch (Exception e) {
             return Optional.empty();
         }
 
-        if (curTask == null) {
+        if (curSubTask == null) {
             return Optional.empty();
         }
-        return Optional.of(curTask);
+        return Optional.of(curSubTask);
     }
 
     private void writeResponse(HttpExchange exchange,
@@ -180,24 +182,24 @@ public class TasksHandler implements HttpHandler {
     private Endpoint getEndpoint(String requestPath, String requestMethod) {
         switch (requestMethod) {
             case "GET": {
-                if (Pattern.matches("^/tasks$", requestPath)) {
-                    return Endpoint.GET_TASKS;
-                } else if (Pattern.matches("^/tasks/\\d++$", requestPath)) {
-                    return Endpoint.GET_TASK;
+                if (Pattern.matches("^/subtasks$", requestPath)) {
+                    return Endpoint.GET_SUB_TASKS;
+                } else if (Pattern.matches("^/subtasks/\\d++$", requestPath)) {
+                    return Endpoint.GET_SUB_TASK;
                 }
                 break;
             }
             case "POST": {
-                if (Pattern.matches("^/tasks$", requestPath)) {
+                if (Pattern.matches("^/subtasks$", requestPath)) {
                     return Endpoint.POST_CREATE;
-                } else if (Pattern.matches("^/tasks/\\d++$", requestPath)) {
+                } else if (Pattern.matches("^/subtasks/\\d++$", requestPath)) {
                     return Endpoint.POST_UPDATE;
                 }
                 break;
             }
             case "DELETE": {
-                if (Pattern.matches("^/tasks/\\d++$", requestPath)) {
-                    return Endpoint.DELETE_TASK;
+                if (Pattern.matches("^/subtasks/\\d++$", requestPath)) {
+                    return Endpoint.DELETE_SUB_TASK;
                 }
                 break;
             }
@@ -205,5 +207,5 @@ public class TasksHandler implements HttpHandler {
         return Endpoint.UNKNOWN;
     }
 
-    enum Endpoint {GET_TASKS, GET_TASK, POST_CREATE, POST_UPDATE, DELETE_TASK, UNKNOWN}
+    enum Endpoint {GET_SUB_TASKS, GET_SUB_TASK, POST_CREATE, POST_UPDATE, DELETE_SUB_TASK, UNKNOWN}
 }
