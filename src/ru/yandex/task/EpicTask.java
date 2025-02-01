@@ -3,20 +3,17 @@ package ru.yandex.task;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import static ru.yandex.task.TaskStatus.IN_PROGRESS;
 
 public class EpicTask extends Task {
-    private final ArrayList<SubTask> subTasks;
+    private List<Integer> subTasks;
 
     public EpicTask(String name, String description) {
         super(name, description, LocalDateTime.now(), Duration.ZERO);
         subTasks = new ArrayList<>();
-    }
-
-    @Override
-    public void setStatus(TaskStatus status) {
-        //System.out.println("Статус эпической задачи меняется автоматически вместе с подзадачами.");
-        //Выходит тут обязательно переопределить метод с пустым телом? Ведь он есть у родителя. И то
-        //что там происходит нам не подходит.
     }
 
     public void addSubTask(SubTask subTask) {
@@ -24,11 +21,9 @@ public class EpicTask extends Task {
             System.out.println("Обращение к объекту равному null.");
             return;
         }
-        if (!subTasks.contains(subTask)) {
-            subTasks.add(subTask);
+        if (!subTasks.contains(subTask.getId())) {
+            subTasks.add(subTask.getId());
         }
-        updateStatus();
-        updateTime();
     }
 
     public void removeSubTask(SubTask subTask) {
@@ -36,24 +31,43 @@ public class EpicTask extends Task {
             System.out.println("Обращение к объекту равному null.");
             return;
         }
-        subTasks.remove(subTask);
-        updateStatus();
-        updateTime();
+        final int curTaskId = subTask.getId();
+        subTasks = subTasks.stream()
+                .filter(task -> task != curTaskId)
+                .toList();
     }
 
-    public ArrayList<SubTask> getSubTaskList() {
+    public List<Integer> getSubTaskList() {
         return subTasks;
     }
 
-    public void updateStatus() {
-        if (subTasks.isEmpty()) {
-            super.setStatus(TaskStatus.NEW);
+    public static List<SubTask> getSubTaskList(EpicTask epicTask, final List<SubTask> subTasks) {
+        List<Integer> curSubTasksIDList = epicTask.getSubTaskList();
+        return subTasks.stream()
+                .filter(task -> curSubTasksIDList.contains(task.getId()) )
+                .toList();
+    }
+
+    public void cleanSubtaskIds() {
+        subTasks.clear();
+    }
+
+    public static void update (EpicTask epicTask, final List<SubTask> subTasks) {
+        updateStatus(epicTask, subTasks);
+        updateTime(epicTask, subTasks);
+    }
+
+    public static void updateStatus(EpicTask epicTask, final List<SubTask> subTasks) {
+        if (epicTask.getSubTaskList().isEmpty()) {
+            epicTask.setStatus(TaskStatus.NEW);
             return;
         }
+        List<SubTask> curSubTasks = getSubTaskList(epicTask, subTasks);
+
         boolean isDone = false;
         boolean isNew = false;
         boolean isInProgress = false;
-        for (Task subTask : subTasks) {
+        for (SubTask subTask : curSubTasks) {
             switch (subTask.getStatus()) {
                 case NEW -> isNew = true;
                 case DONE -> isDone = true;
@@ -64,46 +78,35 @@ public class EpicTask extends Task {
             }
         }
         if (isDone && !isNew && !isInProgress) {
-            super.setStatus(TaskStatus.DONE);
+            epicTask.setStatus(TaskStatus.DONE);
         } else if (isNew && !isDone && !isInProgress) {
-            super.setStatus(TaskStatus.NEW);
+            epicTask.setStatus(TaskStatus.NEW);
         } else {
-            super.setStatus(TaskStatus.IN_PROGRESS);
+            epicTask.setStatus(IN_PROGRESS);
         }
     }
 
-    public void cleanSubtaskIds() {
-        subTasks.clear();
-        updateStatus();
-    }
-
-    public void updateTime() {
-        subTasks.sort((SubTask sub1, SubTask sub2) -> {
-            if (sub1.getStartTime().isBefore(sub2.getStartTime())) {
-                return -1;
-            } else {
-                return 1;
-            }
-        });
-        if (subTasks.isEmpty()) {
-            super.setStartTime(LocalDateTime.now());
-            super.setDuration(Duration.ZERO);
+    public static void updateTime(EpicTask epicTask, final List<SubTask> subTasks) {
+        List<SubTask> curSubTaskList = getSubTaskList(epicTask, subTasks).stream()
+                .sorted((SubTask sub1, SubTask sub2) -> {
+                    if (sub1.getStartTime().isBefore(sub2.getStartTime())) {
+                        return -1;
+                    } else {
+                        return 1;
+                    }
+                })
+                .toList();
+        if (curSubTaskList.isEmpty()) {
+            epicTask.setStartTime(LocalDateTime.now());
+            epicTask.setDuration(Duration.ZERO);
             return;
         }
-        super.setStartTime(subTasks.getFirst().getStartTime());
+        epicTask.setStartTime(subTasks.getFirst().getStartTime());
 
         Duration resultDuration = Duration.ofMinutes(0);
-        for (SubTask task : subTasks) {
+        for (SubTask task : curSubTaskList) {
             resultDuration = resultDuration.plus(task.getDuration());
         }
-        super.setDuration(resultDuration);
-    }
-
-    @Override
-    public LocalDateTime getEndTime() {
-        if (subTasks.isEmpty()) {
-            return super.getEndTime();
-        }
-        return subTasks.getLast().getEndTime();
+        epicTask.setDuration(resultDuration);
     }
 }

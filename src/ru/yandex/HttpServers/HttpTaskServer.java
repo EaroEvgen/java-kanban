@@ -47,8 +47,8 @@ public class HttpTaskServer {
 
         httpServer = HttpServer.create(new InetSocketAddress(PORT), 0);
         httpServer.createContext("/tasks", new TasksHandler(taskManager, gson));
-//        httpServer.createContext("/subtasks", new SubtasksHandler(taskManager));
-//        httpServer.createContext("/epics", new EpicsHandler(taskManager));
+        httpServer.createContext("/subtasks", new SubtasksHandler(taskManager, gson));
+        httpServer.createContext("/epics", new EpicsHandler(taskManager, gson));
 //        httpServer.createContext("/history", new HistoryHandler(taskManager));
 //        httpServer.createContext("/prioritized", new PrioritizedHandler(taskManager));
 
@@ -72,8 +72,8 @@ public class HttpTaskServer {
         try {
             httpServer = HttpServer.create(new InetSocketAddress(PORT), 0);
             httpServer.createContext("/tasks", new TasksHandler(taskManager, gson));
-        httpServer.createContext("/subtasks", new SubtasksHandler(taskManager, gson));
-//        httpServer.createContext("/epics", new EpicsHandler(taskManager));
+            httpServer.createContext("/subtasks", new SubtasksHandler(taskManager, gson));
+            httpServer.createContext("/epics", new EpicsHandler(taskManager, gson));
 //        httpServer.createContext("/history", new HistoryHandler(taskManager));
 //        httpServer.createContext("/prioritized", new PrioritizedHandler(taskManager));
 

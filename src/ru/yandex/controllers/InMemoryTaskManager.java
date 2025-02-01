@@ -52,6 +52,7 @@ public class InMemoryTaskManager implements TaskManager {
                 }
                 subTaskList.put(task.getId(), subTask);
                 subTask.getEpicTask().addSubTask(subTask);
+                EpicTask.update(epicTaskList.get(subTask.getEpicTask().getId()), subTaskList.values().stream().toList());
                 if (!prioritizedTasks.add(subTask)) {
                     throw new ManagerSaveException("Новая подзадача пересекается по времени с одной из существующих");
                 }
@@ -83,10 +84,17 @@ public class InMemoryTaskManager implements TaskManager {
     public void removeByID(int id) {
         prioritizedTasks.removeIf(task -> task.getId() == id);
         taskList.remove(id);
+        if (epicTaskList.containsKey(id)) {
+            for (int subtaskId : epicTaskList.get(id).getSubTaskList()) {
+                removeByID(subtaskId);
+            }
+        }
         epicTaskList.remove(id);
         if (subTaskList.containsKey(id)) {
             SubTask currentSubTask = subTaskList.get(id);
+            EpicTask currentEpicTask = epicTaskList.get(currentSubTask.getEpicTask().getId());
             currentSubTask.getEpicTask().removeSubTask(currentSubTask);
+            EpicTask.update(currentEpicTask, subTaskList.values().stream().toList());
             subTaskList.remove(id);
         }
         historyManager.remove(id);
@@ -99,9 +107,8 @@ public class InMemoryTaskManager implements TaskManager {
         }
         if (subTaskList.containsKey(id)) {
             subTaskList.get(id).setStatus(status);
-            // статус эпика обновляет подзадача. Я посчитал
-            // что так сложнее ошибиться будет и подзадача
-            // имеет ссылку на свой эпик...
+            EpicTask.updateStatus(epicTaskList.get(subTaskList.get(id).getEpicTask().getId()),
+                    subTaskList.values().stream().toList());
         }
     }
 
@@ -131,6 +138,7 @@ public class InMemoryTaskManager implements TaskManager {
     public void deleteSubtasks() {
         for (EpicTask epic : epicTaskList.values()) {
             epic.cleanSubtaskIds();
+            EpicTask.updateStatus(epic, subTaskList.values().stream().toList());
         }
         subTaskList.clear();
         prioritizedTasks = prioritizedTasks.stream()
@@ -164,7 +172,7 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public List<SubTask> getSubTaskList(int epicTaskID) {
-        return epicTaskList.get(epicTaskID).getSubTaskList();
+        return EpicTask.getSubTaskList(epicTaskList.get(epicTaskID), subTaskList.values().stream().toList());
     }
 
     @Override

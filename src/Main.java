@@ -70,20 +70,20 @@ public class Main {
         System.out.println(taskManager.getTaskHistory());*/
     }
 
-    public static void printAllTasks(TaskManager taskManager) {
-        if (taskManager == null) {
-            return;
-        }
-        List<Task> taskList = taskManager.getTaskList();
-        List<EpicTask> epicTaskList = taskManager.getEpicTaskList();
-        for (Task task : taskList) {
-            System.out.println(task);
-        }
-        for (EpicTask task : epicTaskList) {
-            System.out.println(task);
-            for (SubTask subTask : task.getSubTaskList()) {
-                System.out.println(" -> " + subTask);
-            }
-        }
-    }
+//    public static void printAllTasks(TaskManager taskManager) {
+//        if (taskManager == null) {
+//            return;
+//        }
+//        List<Task> taskList = taskManager.getTaskList();
+//        List<EpicTask> epicTaskList = taskManager.getEpicTaskList();
+//        for (Task task : taskList) {
+//            System.out.println(task);
+//        }
+//        for (EpicTask task : epicTaskList) {
+//            System.out.println(task);
+//            for (SubTask subTask : task.getSubTaskList()) {
+//                System.out.println(" -> " + subTask);
+//            }
+//        }
+//    }
 }
