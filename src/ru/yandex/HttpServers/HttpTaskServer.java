@@ -49,8 +49,8 @@ public class HttpTaskServer {
         httpServer.createContext("/tasks", new TasksHandler(taskManager, gson));
         httpServer.createContext("/subtasks", new SubtasksHandler(taskManager, gson));
         httpServer.createContext("/epics", new EpicsHandler(taskManager, gson));
-//        httpServer.createContext("/history", new HistoryHandler(taskManager));
-//        httpServer.createContext("/prioritized", new PrioritizedHandler(taskManager));
+        httpServer.createContext("/history", new HistoryHandler(taskManager, gson));
+        httpServer.createContext("/prioritized", new PrioritizedHandler(taskManager, gson));
 
         httpServer.start(); // запускаем сервер
         System.out.println("HTTP-сервер запущен на " + PORT + " порту!");
@@ -74,8 +74,8 @@ public class HttpTaskServer {
             httpServer.createContext("/tasks", new TasksHandler(taskManager, gson));
             httpServer.createContext("/subtasks", new SubtasksHandler(taskManager, gson));
             httpServer.createContext("/epics", new EpicsHandler(taskManager, gson));
-//        httpServer.createContext("/history", new HistoryHandler(taskManager));
-//        httpServer.createContext("/prioritized", new PrioritizedHandler(taskManager));
+            httpServer.createContext("/history", new HistoryHandler(taskManager, gson));
+        httpServer.createContext("/prioritized", new PrioritizedHandler(taskManager, gson));
 
             httpServer.start(); // запускаем сервер
             System.out.println("HTTP-сервер запущен на " + PORT + " порту!");
