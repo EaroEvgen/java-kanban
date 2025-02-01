@@ -188,10 +188,7 @@ public class InMemoryTaskManager implements TaskManager {
         if (task1.getEndTime().isBefore(task2.getStartTime())) {
             return false;
         }
-        if (task1.getStartTime().isAfter(task2.getEndTime())) {
-            return false;
-        }
-        return true;
+        return !task1.getStartTime().isAfter(task2.getEndTime());
     }
 
     public boolean checkOverlapsInTime(Task task) {

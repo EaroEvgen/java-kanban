@@ -4,7 +4,6 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static ru.yandex.task.TaskStatus.IN_PROGRESS;
 
@@ -44,7 +43,7 @@ public class EpicTask extends Task {
     public static List<SubTask> getSubTaskList(EpicTask epicTask, final List<SubTask> subTasks) {
         List<Integer> curSubTasksIDList = epicTask.getSubTaskList();
         return subTasks.stream()
-                .filter(task -> curSubTasksIDList.contains(task.getId()) )
+                .filter(task -> curSubTasksIDList.contains(task.getId()))
                 .toList();
     }
 
@@ -52,7 +51,7 @@ public class EpicTask extends Task {
         subTasks.clear();
     }
 
-    public static void update (EpicTask epicTask, final List<SubTask> subTasks) {
+    public static void update(EpicTask epicTask, final List<SubTask> subTasks) {
         updateStatus(epicTask, subTasks);
         updateTime(epicTask, subTasks);
     }

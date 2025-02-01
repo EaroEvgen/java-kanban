@@ -1,7 +1,6 @@
 package HttpServersHandlersTests;
 
 import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -23,10 +22,6 @@ import java.util.List;
 
 public class HistoryHandlerTest {
     protected static HttpTaskServer taskServer;
-
-    static class SubtitleListTypeToken extends TypeToken<List<Task>> {
-
-    }
 
     @BeforeEach
     public void initTaskServer() {

@@ -49,7 +49,7 @@ public class EpicsHandlerTest {
     @Test
     void checkEndpointGET_EPIC_TASKS() throws IOException, InterruptedException {
         Task task = new Task("Task name", "Test addNewTask description", TaskStatus.NEW, LocalDateTime.now().plusHours(1), Duration.ofMinutes(10));
-        EpicTask epicTask = new  EpicTask("Epik task name", "Epik task description");
+        EpicTask epicTask = new EpicTask("Epic task name", "Epic task description");
         SubTask subTask = new SubTask("subtask name", "subtask description", epicTask, LocalDateTime.now().plusHours(2), Duration.ofMinutes(10));
 
 
@@ -88,9 +88,7 @@ public class EpicsHandlerTest {
 
     @Test
     void checkEndpointGET_EPIC_TASK() throws IOException, InterruptedException {
-        Task task = new Task("Task name", "Test addNewTask description", TaskStatus.NEW, LocalDateTime.now().plusHours(1), Duration.ofMinutes(10));
-        EpicTask epicTask = new  EpicTask("Epik task name", "Epik task description");
-        SubTask subTask = new SubTask("subtask name", "subtask description", epicTask, LocalDateTime.now().plusHours(2), Duration.ofMinutes(10));
+        EpicTask epicTask = new EpicTask("Epic task name", "Epic task description");
         int epicTaskId = epicTask.getId();
 
         TaskManager taskManager = taskServer.getTaskManager();
@@ -122,8 +120,7 @@ public class EpicsHandlerTest {
 
     @Test
     void checkEndpointGET_EPIC_TASK_SUBTASK() throws IOException, InterruptedException {
-        Task task = new Task("Task name", "Test addNewTask description", TaskStatus.NEW, LocalDateTime.now().plusHours(1), Duration.ofMinutes(10));
-        EpicTask epicTask = new  EpicTask("Epik task name", "Epik task description");
+        EpicTask epicTask = new EpicTask("Epic task name", "Epic task description");
         SubTask subTask = new SubTask("subtask name", "subtask description", epicTask, LocalDateTime.now().plusHours(2), Duration.ofMinutes(10));
         int epicTaskId = epicTask.getId();
 
@@ -160,9 +157,7 @@ public class EpicsHandlerTest {
 
     @Test
     void checkEndpointPOST_CREATE() throws IOException, InterruptedException {
-        Task task = new Task("Task name", "Test addNewTask description", TaskStatus.NEW, LocalDateTime.now().plusHours(1), Duration.ofMinutes(10));
-        EpicTask epicTask = new  EpicTask("Epik task name", "Epik task description");
-        SubTask subTask = new SubTask("subtask name", "subtask description", epicTask, LocalDateTime.now().plusHours(2), Duration.ofMinutes(10));
+        EpicTask epicTask = new EpicTask("Epic task name", "Epic task description");
         int epicTaskId = epicTask.getId();
 
         Gson gson = taskServer.getGson();
@@ -190,8 +185,8 @@ public class EpicsHandlerTest {
 
     @Test
     void checkEndpointPOST_UPDATE() throws IOException, InterruptedException {
-        EpicTask epicTask = new  EpicTask("Epik task name", "Epik task description");
-        EpicTask newEpicTask = new  EpicTask("Epik task name", "Epik task description");
+        EpicTask epicTask = new EpicTask("Epic task name", "Epic task description");
+        EpicTask newEpicTask = new EpicTask("Epic task name", "Epic task description");
         int epicTaskId = epicTask.getId();
         newEpicTask.setId(epicTaskId);
 
@@ -230,7 +225,7 @@ public class EpicsHandlerTest {
     @Test
     void checkEndpointDELETE_TASK() throws IOException, InterruptedException {
         Task task = new Task("Task name", "Test addNewTask description", TaskStatus.NEW, LocalDateTime.now().plusHours(1), Duration.ofMinutes(10));
-        EpicTask epicTask = new  EpicTask("Epik task name", "Epik task description");
+        EpicTask epicTask = new EpicTask("Epic task name", "Epic task description");
         SubTask subTask = new SubTask("subtask name", "subtask description", epicTask, LocalDateTime.now().plusHours(2), Duration.ofMinutes(10));
         int taskId = epicTask.getId();
         int subTaskId = subTask.getId();

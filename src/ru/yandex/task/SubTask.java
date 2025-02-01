@@ -23,8 +23,4 @@ public class SubTask extends Task {
     public EpicTask getEpicTask() {
         return epicTask;
     }
-
-    public void setEpicTask(EpicTask epicTask) {
-        this.epicTask = epicTask;
-    }
 }

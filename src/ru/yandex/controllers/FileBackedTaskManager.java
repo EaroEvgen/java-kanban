@@ -46,7 +46,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
                     .append(task.getName()).append(SEPARATOR)
                     .append(task.getDescription()).append(SEPARATOR)
                     .append(task.getStatus()).append(SEPARATOR)
-                    ;
+            ;
 
             for (SubTask subTask : super.getSubTaskList(task.getId())) {
                 curTask.append(subTask.getId()).append(",");

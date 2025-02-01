@@ -44,7 +44,7 @@ public class SubtasksHandlerTest {
 
     @Test
     void checkEndpointGET_SUB_TASKS() throws IOException, InterruptedException {
-        EpicTask epicTask = new EpicTask("Epik task name", "Epik task description");
+        EpicTask epicTask = new EpicTask("Epic task name", "Epic task description");
         SubTask subTask = new SubTask("subtask name", "subtask description", epicTask, LocalDateTime.now().plusHours(2), Duration.ofMinutes(10));
 
         List<SubTask> startSubTaskList = new ArrayList<>();

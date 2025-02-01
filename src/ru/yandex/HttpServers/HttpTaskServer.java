@@ -1,10 +1,8 @@
 package ru.yandex.HttpServers;
 
-
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.TypeAdapter;
-import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 import com.sun.net.httpserver.HttpServer;
@@ -20,8 +18,6 @@ import java.net.InetSocketAddress;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.List;
 
 public class HttpTaskServer {
     public static final int PORT = 8080;
@@ -38,7 +34,7 @@ public class HttpTaskServer {
                 .registerTypeAdapter(Duration.class, new DurationTypeAdapter())
                 .create();
         Task task = new Task("Task name", "Task description", TaskStatus.NEW, LocalDateTime.now().plusHours(1), Duration.ofMinutes(10));
-        EpicTask epicTask = new EpicTask("Epik task name", "Epik task description");
+        EpicTask epicTask = new EpicTask("Epic task name", "Epic task description");
         SubTask subTask = new SubTask("subtask name", "subtask description", epicTask, LocalDateTime.now().plusHours(2), Duration.ofMinutes(10));
 
         taskManager.addTask(task);
@@ -75,7 +71,7 @@ public class HttpTaskServer {
             httpServer.createContext("/subtasks", new SubtasksHandler(taskManager, gson));
             httpServer.createContext("/epics", new EpicsHandler(taskManager, gson));
             httpServer.createContext("/history", new HistoryHandler(taskManager, gson));
-        httpServer.createContext("/prioritized", new PrioritizedHandler(taskManager, gson));
+            httpServer.createContext("/prioritized", new PrioritizedHandler(taskManager, gson));
 
             httpServer.start(); // запускаем сервер
             System.out.println("HTTP-сервер запущен на " + PORT + " порту!");
@@ -91,10 +87,6 @@ public class HttpTaskServer {
     public TaskManager getTaskManager() {
         return taskManager;
     }
-}
-
-class SubtitleListTypeToken extends TypeToken<List<Task>> {
-
 }
 
 class LocalDateTimeTypeAdapter extends TypeAdapter<LocalDateTime> {
