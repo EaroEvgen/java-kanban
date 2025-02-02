@@ -89,28 +89,4 @@ public class HttpTaskServer {
     }
 }
 
-class LocalDateTimeTypeAdapter extends TypeAdapter<LocalDateTime> {
-    private final DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss.SSSSSSSSS");
 
-    @Override
-    public void write(JsonWriter jsonWriter, final LocalDateTime localTime) throws IOException {
-        jsonWriter.value(localTime.format(timeFormatter));
-    }
-
-    @Override
-    public LocalDateTime read(JsonReader jsonReader) throws IOException {
-        return LocalDateTime.parse(jsonReader.nextString(), timeFormatter);
-    }
-}
-
-class DurationTypeAdapter extends TypeAdapter<Duration> {
-    @Override
-    public void write(JsonWriter jsonWriter, final Duration duration) throws IOException {
-        jsonWriter.value(duration.getSeconds());
-    }
-
-    @Override
-    public Duration read(JsonReader jsonReader) throws IOException {
-        return Duration.ofSeconds(Integer.parseInt(jsonReader.nextString()));
-    }
-}
