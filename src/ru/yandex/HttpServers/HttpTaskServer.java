@@ -2,9 +2,6 @@ package ru.yandex.HttpServers;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.gson.TypeAdapter;
-import com.google.gson.stream.JsonReader;
-import com.google.gson.stream.JsonWriter;
 import com.sun.net.httpserver.HttpServer;
 import ru.yandex.controllers.Managers;
 import ru.yandex.controllers.TaskManager;
@@ -17,7 +14,6 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 
 public class HttpTaskServer {
     public static final int PORT = 8080;
