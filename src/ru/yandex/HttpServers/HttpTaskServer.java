@@ -3,12 +3,10 @@ package ru.yandex.HttpServers;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.sun.net.httpserver.HttpServer;
+import ru.yandex.adapters.DurationTypeAdapter;
+import ru.yandex.adapters.LocalDateTimeTypeAdapter;
 import ru.yandex.controllers.Managers;
 import ru.yandex.controllers.TaskManager;
-import ru.yandex.task.EpicTask;
-import ru.yandex.task.SubTask;
-import ru.yandex.task.Task;
-import ru.yandex.task.TaskStatus;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -25,17 +23,7 @@ public class HttpTaskServer {
 
     public static void main(String[] args) throws IOException {
         taskManager = Managers.getDefault();
-        gson = new GsonBuilder()
-                .registerTypeAdapter(LocalDateTime.class, new LocalDateTimeTypeAdapter())
-                .registerTypeAdapter(Duration.class, new DurationTypeAdapter())
-                .create();
-        Task task = new Task("Task name", "Task description", TaskStatus.NEW, LocalDateTime.now().plusHours(1), Duration.ofMinutes(10));
-        EpicTask epicTask = new EpicTask("Epic task name", "Epic task description");
-        SubTask subTask = new SubTask("subtask name", "subtask description", epicTask, LocalDateTime.now().plusHours(2), Duration.ofMinutes(10));
-
-        taskManager.addTask(task);
-        taskManager.addTask(epicTask);
-        taskManager.addTask(subTask);
+        gson = Managers.getDefaultGson();
 
         httpServer = HttpServer.create(new InetSocketAddress(PORT), 0);
         httpServer.createContext("/tasks", new TasksHandler(taskManager, gson));
