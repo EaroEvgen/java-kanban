@@ -241,6 +241,5 @@ public class EpicsHandler implements HttpHandler {
         return Endpoint.UNKNOWN;
     }
 
-    enum Endpoint {GET_EPIC_TASKS, GET_EPIC_TASK, GET_EPIC_TASK_SUBTASK, POST_CREATE, POST_UPDATE, DELETE_TASK, UNKNOWN}
+    enum Endpoint { GET_EPIC_TASKS, GET_EPIC_TASK, GET_EPIC_TASK_SUBTASK, POST_CREATE, POST_UPDATE, DELETE_TASK, UNKNOWN }
 }
-

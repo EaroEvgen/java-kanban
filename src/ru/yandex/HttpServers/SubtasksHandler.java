@@ -207,5 +207,5 @@ public class SubtasksHandler implements HttpHandler {
         return Endpoint.UNKNOWN;
     }
 
-    enum Endpoint {GET_SUB_TASKS, GET_SUB_TASK, POST_CREATE, POST_UPDATE, DELETE_SUB_TASK, UNKNOWN}
+    enum Endpoint { GET_SUB_TASKS, GET_SUB_TASK, POST_CREATE, POST_UPDATE, DELETE_SUB_TASK, UNKNOWN }
 }

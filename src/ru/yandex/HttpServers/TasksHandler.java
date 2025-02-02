@@ -205,5 +205,5 @@ public class TasksHandler implements HttpHandler {
         return Endpoint.UNKNOWN;
     }
 
-    enum Endpoint {GET_TASKS, GET_TASK, POST_CREATE, POST_UPDATE, DELETE_TASK, UNKNOWN}
+    enum Endpoint { GET_TASKS, GET_TASK, POST_CREATE, POST_UPDATE, DELETE_TASK, UNKNOWN }
 }

@@ -68,6 +68,6 @@ public class HistoryHandler implements HttpHandler {
         return Endpoint.UNKNOWN;
     }
 
-    enum Endpoint {GET_HISTORY, UNKNOWN}
+    enum Endpoint { GET_HISTORY, UNKNOWN }
 
 }
