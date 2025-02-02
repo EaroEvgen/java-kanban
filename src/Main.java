@@ -1,7 +1,4 @@
-import ru.yandex.controllers.TaskManager;
-import ru.yandex.task.*;
 
-import java.util.List;
 
 public class Main {
 
