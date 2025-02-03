@@ -18,14 +18,9 @@ public class SubTask extends Task {
     @Override
     public void setStatus(TaskStatus status) {
         super.setStatus(status);
-        epicTask.updateStatus();
     }
 
     public EpicTask getEpicTask() {
         return epicTask;
-    }
-
-    public void setEpicTask(EpicTask epicTask) {
-        this.epicTask = epicTask;
     }
 }

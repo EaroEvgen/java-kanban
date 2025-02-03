@@ -46,9 +46,9 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
                     .append(task.getName()).append(SEPARATOR)
                     .append(task.getDescription()).append(SEPARATOR)
                     .append(task.getStatus()).append(SEPARATOR)
-                    ;
+            ;
 
-            for (SubTask subTask : task.getSubTaskList()) {
+            for (SubTask subTask : super.getSubTaskList(task.getId())) {
                 curTask.append(subTask.getId()).append(",");
             }
             curTask.deleteCharAt(curTask.length() - 1).append(SEPARATOR).append(task.getDuration().toMinutes()).append(SEPARATOR)
@@ -93,6 +93,9 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
             }
         } catch (IOException e) {
             throw new ManagerSaveException("Ошибка чтения из файла: " + "./" + NAME_FILE_FOR_SAVE, e);
+        }
+        for (EpicTask epicTask : curManager.getEpicTaskList()) {
+            EpicTask.update(epicTask, curManager.getSubTaskList());
         }
         return curManager;
     }
