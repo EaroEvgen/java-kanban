@@ -3,26 +3,17 @@ package ru.yandex.HttpServers;
 import com.google.gson.Gson;
 import com.sun.net.httpserver.Headers;
 import com.sun.net.httpserver.HttpExchange;
-import com.sun.net.httpserver.HttpHandler;
 import ru.yandex.controllers.TaskManager;
 import ru.yandex.task.Task;
 
 import java.io.IOException;
-import java.io.OutputStream;
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.regex.Pattern;
 
-public class HistoryHandler implements HttpHandler {
-    private static final Charset DEFAULT_CHARSET = StandardCharsets.UTF_8;
-
-    private final TaskManager taskManager;
-    private final Gson gson;
+public class HistoryHandler extends BaseTasksHandler {
 
     public HistoryHandler(TaskManager taskManager, Gson gson) {
-        this.taskManager = taskManager;
-        this.gson = gson;
+        super(taskManager, gson);
     }
 
     @Override
@@ -44,16 +35,6 @@ public class HistoryHandler implements HttpHandler {
         Headers requestHeaders = exchange.getResponseHeaders();
         requestHeaders.add("Content-Type", "application/json");
         writeResponse(exchange, gson.toJson(curTaskList), 200);
-    }
-
-    private void writeResponse(HttpExchange exchange,
-                               String responseString,
-                               int responseCode) throws IOException {
-        try (OutputStream os = exchange.getResponseBody()) {
-            exchange.sendResponseHeaders(responseCode, 0);
-            os.write(responseString.getBytes(DEFAULT_CHARSET));
-        }
-        exchange.close();
     }
 
     private Endpoint getEndpoint(String requestPath, String requestMethod) {
